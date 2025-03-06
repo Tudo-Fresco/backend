@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Boolean, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from datetime import datetime, timezone
 import enum
 from uuid import uuid4, UUID as PythonUUID

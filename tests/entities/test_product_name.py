@@ -26,5 +26,3 @@ class TestProductName(unittest.TestCase):
         with self.assertRaises(ValidationException) as context:
             product.validate()
         self.assertEqual('Nome do produto: Deve ser menor do que 256 caracters.\n', context.exception.message)
-
-        

@@ -74,3 +74,35 @@ class TestProductName(unittest.TestCase):
         product_name.deactivate()
         self.assertFalse(product_name.active)
         self.assertNotEqual(instance_dict.get('updated_at'), product_name.updated_at.isoformat())
+    
+    def test_init_must_instance_correctly_from_a_dictionary(self) -> None:
+        instance_dict: dict = {
+            'name': 'Pimentão',
+            'uuid': '123e4567-e89b-12d3-a456-426614174000',
+            'created_at': '2025-03-06T12:00:00+00:00',
+            'updated_at': '2025-03-06T12:00:00+00:00',
+            'active': True
+        }
+        product_name = ProductName(**instance_dict)
+        self.assertEqual(instance_dict.get('uuid'), str(product_name.uuid))
+        self.assertTrue(product_name.active)
+        self.assertEqual(instance_dict.get('updated_at'), product_name.updated_at.isoformat())
+        self.assertEqual(instance_dict.get('created_at'), product_name.created_at.isoformat())
+        self.assertEqual(instance_dict.get('name'), product_name.name)
+
+    def test_auto_updated_at_must_set_updated_at_on_any_prop_change(self) -> None:
+        expected_updated_name = 'Another name'
+        instance_dict: dict = {
+            'name': 'Pimentão',
+            'uuid': '123e4567-e89b-12d3-a456-426614174000',
+            'created_at': '2025-03-06T12:00:00+00:00',
+            'updated_at': '2025-03-06T12:00:00+00:00',
+            'active': True
+        }
+        product_name = ProductName(**instance_dict)
+        product_name.name = expected_updated_name
+        self.assertEqual(instance_dict.get('uuid'), str(product_name.uuid))
+        self.assertTrue(product_name.active)
+        self.assertNotEqual(instance_dict.get('updated_at'), product_name.updated_at.isoformat())
+        self.assertEqual(instance_dict.get('created_at'), product_name.created_at.isoformat())
+        self.assertEqual(expected_updated_name, product_name.name)

@@ -24,15 +24,12 @@ class BaseEntity(Base):
         """
         Constructor method to initialize attributes dynamically.
         """
-        if 'uuid' not in kwargs:
-            kwargs['uuid'] = uuid4()
-        if 'active' not in kwargs:
-            kwargs['active'] = True
-        if 'created_at' not in kwargs:
-            kwargs['created_at'] = datetime.now(timezone.utc)
-        if 'updated_at' not in kwargs:
-            kwargs['updated_at'] = datetime.now(timezone.utc)
+        kwargs['uuid'] = self._enforce_uuid(kwargs.get('uuid', uuid4()))
+        kwargs['active'] = kwargs.get('active', True)
+        kwargs['created_at'] = self._enforce_datetime(kwargs.get('created_at', datetime.now(timezone.utc)))
+        kwargs['updated_at'] = self._enforce_datetime(kwargs.get('updated_at', datetime.now(timezone.utc)))
         super().__init__(**kwargs)
+        self._initialized = True
 
     @abstractmethod
     def validate(self):
@@ -55,10 +52,11 @@ class BaseEntity(Base):
             elif isinstance(value, enum.Enum):
                 result[key] = value.value
             elif isinstance(value, BaseEntity):
-                if hasattr(value, 'to_dict'):
-                    result[key] = value.to_dict()
-                else:
-                    result[key] = str(value)
+                result[key] = value.to_dict()
+            elif isinstance(value, list) and all(isinstance(i, BaseEntity) for i in value):
+                result[key] = []
+                for val in value:
+                    result[key] = val.to_dict()
             elif isinstance(value, datetime):
                 result[key] = value.isoformat()
             else:
@@ -70,6 +68,17 @@ class BaseEntity(Base):
         Override setattr to automatically update `updated_at`
         whenever an attribute is modified, but not during initialization.
         """
+        if "_initialized" in self.__dict__:
+            if name != "updated_at" and not name.startswith("_") and hasattr(self, "uuid"):  
+                super().__setattr__("updated_at", datetime.now(timezone.utc))
         super().__setattr__(name, value)
-        if name != "updated_at" and not name.startswith("_") and hasattr(self, "uuid"):  
-            super().__setattr__("updated_at", datetime.now(timezone.utc))
+    
+    def _enforce_datetime(self, value) -> datetime:
+        if isinstance(value, str):
+            return datetime.fromisoformat(value)
+        return value
+    
+    def _enforce_uuid(self, value) -> PythonUUID:
+        if isinstance(value, str):
+            return PythonUUID(value)
+        return value

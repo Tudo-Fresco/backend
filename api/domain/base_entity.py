@@ -1,75 +1,87 @@
-from sqlalchemy import Column, Boolean, DateTime
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base
 from abc import abstractmethod
 from datetime import datetime, timezone
 import enum
-from uuid import uuid4, UUID as PythonUUID
+from typing import Any
+from uuid import uuid4, UUID
 
-Base = declarative_base()
 
-class BaseEntity(Base):
-    """
-    Abstract base class that defines common fields for all models.
-    It includes a UUID primary key, active status, and timestamps.
-    """
-    __abstract__ = True
-
-    uuid = Column(UUID, primary_key=True, default=uuid4, unique=True, nullable=False)
-    active = Column(Boolean, default=True, nullable=False)
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+class BaseEntity:
 
     def __init__(self, **kwargs):
-        """
-        Constructor method to initialize attributes dynamically.
-        """
-        if 'uuid' not in kwargs:
-            kwargs['uuid'] = uuid4()
-        if 'active' not in kwargs:
-            kwargs['active'] = True
-        if 'created_at' not in kwargs:
-            kwargs['created_at'] = datetime.now(timezone.utc)
-        if 'updated_at' not in kwargs:
-            kwargs['updated_at'] = datetime.now(timezone.utc)
-        super().__init__(**kwargs)
+        self._uuid = self._enforce_uuid(kwargs.pop('uuid', uuid4()))
+        self._active = kwargs.pop('active', True)
+        self._created_at = self._enforce_datetime(kwargs.pop('created_at', datetime.now(timezone.utc)))
+        self._updated_at = self._enforce_datetime(kwargs.pop('updated_at', datetime.now(timezone.utc)))
+
+    @property
+    def uuid(self) -> UUID:
+        return self._uuid
+
+    @property
+    def active(self) -> bool:
+        return self._active
+
+    @property
+    def created_at(self) -> datetime:
+        return self._created_at
+
+    @property
+    def updated_at(self) -> datetime:
+        return self._updated_at
 
     @abstractmethod
-    def validate(self):
-        raise NotImplementedError("This function is not implemented")
+    def validate(self) -> None:
+        raise NotImplementedError('This method must be implemented by subclasses')
 
-    def activate(self):
-        self.active = True
+    def activate(self) -> None:
+        self._active = True
+        self.update_timestamp()
 
-    def deactivate(self):
-        self.active = False
+    def deactivate(self) -> None:
+        self._active = False
+        self.update_timestamp()
+
+    def update_timestamp(self) -> None:
+        '''Explicitly update the updated_at timestamp.'''
+        self._updated_at = datetime.now(timezone.utc)
+
+    def update(self, **kwargs) -> None:
+        '''Update multiple attributes generically and optionally update the timestamp.'''
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        self.update_timestamp()
 
     def to_dict(self) -> dict:
-        result = {}
+        result = {
+            'uuid': str(self._uuid),
+            'active': self._active,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+        }
         properties: dict = self.__dict__.items()
         for key, value in properties:
             if key.startswith('_'):
                 continue
-            if isinstance(value, PythonUUID):
+            if isinstance(value, UUID):
                 result[key] = str(value)
             elif isinstance(value, enum.Enum):
                 result[key] = value.value
             elif isinstance(value, BaseEntity):
-                if hasattr(value, 'to_dict'):
-                    result[key] = value.to_dict()
-                else:
-                    result[key] = str(value)
+                result[key] = value.to_dict()
+            elif isinstance(value, list) and all(isinstance(i, BaseEntity) for i in value):
+                result[key] = [val.to_dict() for val in value]
             elif isinstance(value, datetime):
                 result[key] = value.isoformat()
             else:
                 result[key] = value
         return result
-
-    def __setattr__(self, name, value):
-        """
-        Override setattr to automatically update `updated_at`
-        whenever an attribute is modified, but not during initialization.
-        """
-        super().__setattr__(name, value)
-        if name != "updated_at" and not name.startswith("_") and hasattr(self, "uuid"):  
-            super().__setattr__("updated_at", datetime.now(timezone.utc))
+    
+    def _enforce_datetime(self, value: Any) -> datetime:
+        if isinstance(value, str):
+            return datetime.fromisoformat(value)
+        return value
+    
+    def _enforce_uuid(self, value: Any) -> UUID:
+        if isinstance(value, str):
+            return UUID(value)
+        return value

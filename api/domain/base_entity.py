@@ -42,11 +42,9 @@ class BaseEntity:
         self.update_timestamp()
 
     def update_timestamp(self) -> None:
-        '''Explicitly update the updated_at timestamp.'''
         self._updated_at = datetime.now(timezone.utc)
 
     def update(self, **kwargs) -> None:
-        '''Update multiple attributes generically and optionally update the timestamp.'''
         for key, value in kwargs.items():
             setattr(self, key, value)
         self.update_timestamp()

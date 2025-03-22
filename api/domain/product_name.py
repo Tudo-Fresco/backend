@@ -2,7 +2,8 @@ from api.domain.base_entity import BaseEntity
 from api.shared.validator import Validator
 
 class ProductName(BaseEntity):
-    def __init__(self, name: str, **kwargs):
+
+    def __init__(self, name: str, **kwargs) -> None:
         super().__init__(**kwargs)
         self.name = name
 

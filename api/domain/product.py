@@ -34,10 +34,10 @@ class Product(BaseEntity):
 
     def validate(self) -> None:
         validator = Validator()
-        validator.validate(self.code, 'Código do produto').character_limit(1024, 'Deve ser menor que 1024 caracteres.')
-        validator.validate(self.unit_cost, 'Custo da unidade').be_posive('Deve ser um valor positivo')
-        validator.validate(self.unit_price, 'Preço da unidade').greater_than_zero('Deve ser maior que 0')
-        validator.validate(self.unit_stock_count, 'Quantidade no estoque').be_posive('Deve ser um valor positivo')
+        validator.on(self.code, 'Código do produto').character_limit(1024, 'Deve ser menor que 1024 caracteres.')
+        validator.on(self.unit_cost, 'Custo da unidade').greater_or_equal(0, 'Deve ser um valor positivo')
+        validator.on(self.unit_price, 'Preço da unidade').greater_or_equal(0, 'Deve ser maior que 0')
+        validator.on(self.unit_stock_count, 'Quantidade no estoque').positive('Deve ser um valor positivo')
         validator.check()
         self.name.validate()
         self.store.validate()
@@ -59,7 +59,12 @@ class Product(BaseEntity):
         return profit
 
     def sell(self, units: int) -> None:
+        units = abs(units)
+        validator = Validator()
+        validator.on(self.unit_stock_count, 'Quantidade em estoque').greater_or_equal(units, 'Quantidade indisponível no momento.')
+        validator.check()
         self.unit_stock_count -= units
 
     def restock(self, units: int) -> None:
+        units = abs(units)
         self.unit_stock_count += units

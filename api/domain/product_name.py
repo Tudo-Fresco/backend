@@ -9,4 +9,4 @@ class ProductName(BaseEntity):
 
     def validate(self) -> None:
         validator = Validator()
-        validator.validate(self.name, 'Nome do produto').character_limit(256, 'Deve ser menor do que 256 caracteres.').check()
+        validator.on(self.name, 'Nome do produto').character_limit(256, 'Deve ser menor do que 256 caracteres.').check()

@@ -6,7 +6,7 @@ class Validator:
     def __init__(self):
         self.current_field_errors = []
 
-    def validate(self, value: str, field_name: str):
+    def on(self, value: str, field_name: str):
         '''
         Starts a new validation process for the given value.
         '''
@@ -24,14 +24,14 @@ class Validator:
             self.current_field_errors.append(message or 'Value cannot be empty.')
         return self
 
-    def greater_than_zero(self, message: str = None):
-        if self.value <= 0:
-            self.current_field_errors.append(message or 'Value must be greater than 0')
+    def greater_or_equal(self, limit: float, message: str = None):
+        if self.value <= limit:
+            self.current_field_errors.append(message or f'Value must be greater or equal than {limit}')
         return self
 
-    def be_posive(self, message: str = None):
-        if self.value < 0:
-            self.current_field_errors.append(message or 'The value must be positive')
+    def positive(self, message: str = None):
+        if self.value <= 0:
+            self.current_field_errors.append(message or 'Value must be a positive number')
         return self
 
     def with_message(self, message: str):

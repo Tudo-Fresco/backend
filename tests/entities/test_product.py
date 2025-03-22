@@ -169,13 +169,18 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(expected_profit, profit)
 
     def test_sell_must_decrease_stock_count_correctly(self) -> None:
-        units_to_sell = 30
+        units_to_sell = -30
         expected_stock = 100 - 30
         self.product.sell(units_to_sell)
         self.assertEqual(expected_stock, self.product.unit_stock_count)
 
+    def test_sell_must_raise_validation_exception_when_the_requested_quantity_is_not_avaiable(self) -> None:
+            self.product.unit_stock_count = 0
+            with self.assertRaises(ValidationException):
+                self.product.sell(1)
+
     def test_restock_must_increase_stock_count_correctly(self) -> None:
-        units_to_restock = 50
+        units_to_restock = -50
         expected_stock = 100 + 50
         self.product.restock(units_to_restock)
         self.assertEqual(expected_stock, self.product.unit_stock_count)

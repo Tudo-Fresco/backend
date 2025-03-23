@@ -25,7 +25,7 @@ class TestProduct(unittest.TestCase):
             unit_price=15.0,
             unit_type=UnitType.PIECE,
             unit_stock_count=100,
-            product_image_urls=["http://example.com/image.jpg"],
+            image_urls=["http://example.com/image.jpg"],
             store=self.store_mock,
             certification=self.certification_mock
         )
@@ -46,7 +46,7 @@ class TestProduct(unittest.TestCase):
             unit_price=15.0,
             unit_type=UnitType.PIECE,
             unit_stock_count=100,
-            product_image_urls=["http://example.com/image.jpg"],
+            image_urls=["http://example.com/image.jpg"],
             store=self.store_mock
         )
         product.validate()
@@ -63,7 +63,7 @@ class TestProduct(unittest.TestCase):
             unit_price=15.0,
             unit_type=UnitType.PIECE,
             unit_stock_count=100,
-            product_image_urls=["http://example.com/image.jpg"],
+            image_urls=["http://example.com/image.jpg"],
             store=self.store_mock
         )
         with self.assertRaises(ValidationException):
@@ -78,7 +78,7 @@ class TestProduct(unittest.TestCase):
             unit_price=15.0,
             unit_type=UnitType.PIECE,
             unit_stock_count=100,
-            product_image_urls=["http://example.com/image.jpg"],
+            image_urls=["http://example.com/image.jpg"],
             store=self.store_mock
         )
         with self.assertRaises(ValidationException):
@@ -93,7 +93,7 @@ class TestProduct(unittest.TestCase):
             unit_price=0.0,
             unit_type=UnitType.PIECE,
             unit_stock_count=100,
-            product_image_urls=["http://example.com/image.jpg"],
+            image_urls=["http://example.com/image.jpg"],
             store=self.store_mock
         )
         with self.assertRaises(ValidationException):
@@ -108,7 +108,7 @@ class TestProduct(unittest.TestCase):
             unit_price=15.0,
             unit_type=UnitType.PIECE,
             unit_stock_count=-10,
-            product_image_urls=["http://example.com/image.jpg"],
+            image_urls=["http://example.com/image.jpg"],
             store=self.store_mock
         )
         with self.assertRaises(ValidationException):
@@ -123,7 +123,7 @@ class TestProduct(unittest.TestCase):
             unit_price=15.0,
             unit_type=UnitType.PIECE,
             unit_stock_count=100,
-            product_image_urls=["http://example.com/image.jpg"],
+            image_urls=["http://example.com/image.jpg"],
             store=self.store_mock,
             certification=self.certification_mock
         )
@@ -141,7 +141,7 @@ class TestProduct(unittest.TestCase):
             unit_price=15.0,
             unit_type=UnitType.PIECE,
             unit_stock_count=100,
-            product_image_urls=["http://example.com/image.jpg"],
+            image_urls=["http://example.com/image.jpg"],
             store=self.store_mock,
             certification=None
         )
@@ -196,7 +196,7 @@ class TestProduct(unittest.TestCase):
             "unit_price": 4.0,
             "unit_type": UnitType.KILOGRAM,
             "unit_stock_count": 200,
-            "product_image_urls": ["http://example.com/pimentao.jpg"],
+            "image_urls": ["http://example.com/pimentao.jpg"],
             "store": mock_store,
             "uuid": "123e4567-e89b-12d3-a456-426614174000",
             "created_at": "2025-03-06T12:00:00+00:00",
@@ -215,7 +215,7 @@ class TestProduct(unittest.TestCase):
         self.assertEqual(instance_dict["unit_price"], product.unit_price)
         self.assertEqual(instance_dict["unit_type"], product.unit_type)
         self.assertEqual(instance_dict["unit_stock_count"], product.unit_stock_count)
-        self.assertEqual(instance_dict["product_image_urls"], product.product_image_urls)
+        self.assertEqual(instance_dict["image_urls"], product.image_urls)
         self.assertEqual(instance_dict["store"], product.store)
 
     @freeze_time("2025-03-06 12:00:00")
@@ -228,7 +228,7 @@ class TestProduct(unittest.TestCase):
             unit_price=15.0,
             unit_type=UnitType.PIECE,
             unit_stock_count=100,
-            product_image_urls=["http://example.com/image.jpg"],
+            image_urls=["http://example.com/image.jpg"],
             store=self.store_mock,
             active=False,
             updated_at=datetime(2025, 3, 5, 12, 0, 0, tzinfo=timezone.utc)
@@ -250,7 +250,7 @@ class TestProduct(unittest.TestCase):
             unit_price=15.0,
             unit_type=UnitType.PIECE,
             unit_stock_count=100,
-            product_image_urls=["http://example.com/image.jpg"],
+            image_urls=["http://example.com/image.jpg"],
             store=self.store_mock,
             active=True,
             updated_at=datetime(2025, 3, 5, 12, 0, 0, tzinfo=timezone.utc)

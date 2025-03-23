@@ -5,6 +5,7 @@ from api.enums.product_type import ProductType
 from api.domain.store import Store
 from api.enums.unit_type import UnitType
 from api.shared.validator import Validator
+from typing import List
 
 
 class Product(BaseEntity):
@@ -16,7 +17,7 @@ class Product(BaseEntity):
                 unit_price: float, 
                 unit_type: UnitType,
                 unit_stock_count: int,
-                product_image_urls: list[str],
+                image_urls: List[str],
                 store: Store,
                 certification: Certification = None,
                 **kwargs) -> None:
@@ -28,7 +29,7 @@ class Product(BaseEntity):
         self.unit_price: float = unit_price
         self.unit_type: UnitType = unit_type
         self.unit_stock_count: int = unit_stock_count
-        self.product_image_urls: list[str] = product_image_urls
+        self.image_urls: List[str] = image_urls
         self.store: Store = store
         self.certification: Certification = certification
 

@@ -1,4 +1,5 @@
 from api.exceptions.validation_exception import ValidationException
+from validate_docbr import CNPJ, CPF
 
 
 class Validator:
@@ -29,9 +30,27 @@ class Validator:
             self.current_field_errors.append(message or f'Value must be greater or equal than {limit}')
         return self
 
+    def smaller_or_equal(self, limit: float, message: str = None):
+        if self.value >= limit:
+            self.current_field_errors.append(message or f'Value must be smaller or equal than {limit}')
+        return self
+
     def positive(self, message: str = None):
         if self.value <= 0:
             self.current_field_errors.append(message or 'Value must be a positive number')
+        return self
+
+
+    def cnpj_is_valid(self, message: str = None):
+        cnpj = CNPJ()
+        if not cnpj.validate(self.value):
+            self.current_field_errors.append(message or f'{self.value} is not a valid Cnpj')
+        return self
+    
+    def cpf_is_valid(self, message: str = None):
+        cpf = CPF()
+        if not cpf.validate(self.value):
+            self.current_field_errors.append(message or f'{self.value} is not a valid Cpf')
         return self
 
     def with_message(self, message: str):

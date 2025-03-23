@@ -2,6 +2,6 @@ from enum import Enum
 
 
 class UserType(Enum):
-    SUPPLIER = 'SUPPLIER'
     BUYER = 'BUYER'
+    SELLER = 'SELLER'
     MODERATOR = 'MODERATOR'

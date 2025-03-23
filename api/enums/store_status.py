@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class StoreStatus(Enum):
-    OPENED = 'OPENED'
+    ACTIVE = 'ACTIVE'
     OUT_OF_BUSINESS = 'OUT_OF_BUSINESS'
     CLOSED = 'CLOSED'
     UNKNOWN = 'UNKNOWN'

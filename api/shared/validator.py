@@ -40,7 +40,6 @@ class Validator:
             self.current_field_errors.append(message or 'Value must be a positive number')
         return self
 
-
     def cnpj_is_valid(self, message: str = None):
         cnpj = CNPJ()
         if not cnpj.validate(self.value):

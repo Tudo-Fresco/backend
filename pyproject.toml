@@ -12,6 +12,7 @@ asyncpg = "^0.30.0"
 pytest = "^8.3.5"
 freezegun = "^1.5.1"
 validate-docbr = "^1.10.0"
+alembic = "^1.15.1"
 
 
 [tool.poetry.group.dev.dependencies]

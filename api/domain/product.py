@@ -36,9 +36,9 @@ class Product(BaseEntity):
     def validate(self) -> None:
         validator = Validator()
         validator.on(self.code, 'Código do produto').character_limit(1024, 'Deve ser menor que 1024 caracteres.')
-        validator.on(self.unit_cost, 'Custo da unidade').greater_or_equal(0, 'Deve ser um valor positivo')
-        validator.on(self.unit_price, 'Preço da unidade').greater_or_equal(0, 'Deve ser maior que 0')
-        validator.on(self.unit_stock_count, 'Quantidade no estoque').positive('Deve ser um valor positivo')
+        validator.on(self.unit_cost, 'Custo da unidade').greater(0, 'Deve ser um valor positivo')
+        validator.on(self.unit_price, 'Preço da unidade').greater(0, 'Deve ser maior que 0')
+        validator.on(self.unit_stock_count, 'Quantidade no estoque').greater(0, 'Deve ser um valor positivo')
         validator.check()
         self.name.validate()
         self.store.validate()

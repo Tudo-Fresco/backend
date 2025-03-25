@@ -1,68 +1,68 @@
-from sqlalchemy import Result
-from api.infrastructure.models.base_model import BaseModel
-from typing import Type, TypeVar, Generic, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from typing import Type, TypeVar, Generic, List
+from api.shared.logger import Logger
+from api.domain.base_entity import BaseEntity
+from api.infrastructure.models.base_model import BaseModel
+from uuid import UUID
 
-T = TypeVar("T", bound=BaseModel)
 
-class BaseRepository(Generic[T]):
+T = TypeVar('T', bound=BaseEntity)
+M = TypeVar('M', bound=BaseModel)
 
-    def __init__(self, db_session: AsyncSession, model: Type[T]):
+class BaseRepository(Generic[T, M]):
+
+    def __init__(self, db_session: AsyncSession, model: Type[M]):
         self.db_session = db_session
         self.model = model
+        self.logger = Logger(f'{T.__name__}Repository')
 
     async def get_all(self, limit: int = 10, offset: int = 0) -> List[T]:
+        self.logger.log_debug(f'Get all: limit {limit}, offset: {offset}')
         async with self.db_session as session:
-            result = await session.execute(
-                select(self.model).offset(offset).limit(limit)
-            )
-            return await self._convert_to_entity_list(result)
+            result = await session.execute(select(self.model).offset(offset).limit(limit))
+            rows: list[M] = result.scalars().all()
+            entities: list[T] = []
+            self.logger.log_debug(f'Found {len(rows)} registers')
+            for model in rows:
+                entities.append(model.to_entity())
+            return entities
 
-    async def get_by_uuid(self, uuid: str) -> T:
+    async def get_by_uuid(self, uuid: UUID) -> T | None:
+        self.logger.log_debug(f'Read by UUID: {uuid}')
         async with self.db_session as session:
-            result = await session.execute(
-                select(self.model).filter(self.model.uuid == uuid)
-            )
-            return await self._convert_to_entity(result)
+            result = await session.execute(select(self.model).filter(self.model.uuid == uuid))
+            model_instance = result.scalars().first()
+            if not model_instance:
+                self.logger.log_debug('No result was found')
+                return None
+            self.logger.log_debug('The result was found')
+            return model_instance.to_entity()
 
     async def create(self, entity: T) -> T:
+        self.logger.log_debug('Creating a new register')
         async with self.db_session as session:
-            session.add(entity)
+            model_instance = self.model.from_entity(entity)
+            session.add(model_instance)
             await session.commit()
-            await session.refresh(entity)
-            return await self._convert_to_entity(entity)
+            await session.refresh(model_instance)
+            self.logger.log_debug('The register is created')
+            return model_instance.to_entity()
 
     async def update(self, entity: T) -> T:
+        self.logger.log_debug(f'Updating the UUID: {str(entity.uuid)}')
         async with self.db_session as session:
-            merged_entity = await session.merge(entity)
+            model_instance = self.model.from_entity(entity)
+            merged_model = await session.merge(model_instance)
             await session.commit()
-            await session.refresh(merged_entity)
-            return await self._convert_to_entity(merged_entity)
+            await session.refresh(merged_model)
+            self.logger.log_debug('The register was updated')
+            return merged_model.to_entity()
 
     async def delete(self, entity: T):
+        self.logger.log_debug(f'Deleting the UUID: {str(entity.uuid)}')
         async with self.db_session as session:
-            await session.delete(entity)
+            model_instance = self.model.from_entity(entity)
+            await session.delete(model_instance)
             await session.commit()
-
-    async def _convert_to_entity_list(self, result: Result) -> List[T]:
-        """
-        Converts a list of query results to entity objects.
-        """
-        entities = []
-        for item in result.scalars().all():
-            entity = await self._convert_to_entity(item)
-            entities.append(entity)
-        return entities
-
-    async def _convert_to_entity(self, item: Result | T) -> T | None:
-        """
-        Converts a single query result or model instance to an entity object.
-        """
-        if isinstance(item, Result):
-            model_instance = item.scalars().first()
-        else:
-            model_instance = item
-        if model_instance:
-            return model_instance.to_entity()
-        return None
+            self.logger.log_debug('The register was deleted')

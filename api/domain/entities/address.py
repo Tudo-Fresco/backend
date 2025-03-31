@@ -1,4 +1,4 @@
-from api.domain.base_entity import BaseEntity
+from api.domain.entities.base_entity import BaseEntity
 
 
 class Address(BaseEntity):

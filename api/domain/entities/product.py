@@ -1,4 +1,4 @@
-from api.domain.base_entity import BaseEntity
+from api.domain.entities.base_entity import BaseEntity
 from api.enums.product_type import ProductType
 from api.enums.unit_type import UnitType
 from api.shared.validator import Validator

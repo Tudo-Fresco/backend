@@ -1,7 +1,7 @@
-from api.domain.address import Address
-from api.domain.base_entity import BaseEntity
+from api.domain.entities.address import Address
+from api.domain.entities.base_entity import BaseEntity
 from api.shared.validator import Validator
-from api.domain.user import User
+from api.domain.entities.user import User
 from typing import List
 
 

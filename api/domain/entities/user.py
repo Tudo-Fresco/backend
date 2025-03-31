@@ -1,5 +1,5 @@
 from api.enums.gender_type import GenderType
-from api.domain.base_entity import BaseEntity
+from api.domain.entities.base_entity import BaseEntity
 from datetime import date
 
 

@@ -1,7 +1,7 @@
-from api.domain.base_entity import BaseEntity
-from api.domain.product import Product
-from api.domain.store import Store
-from api.domain.user import User
+from api.domain.entities.base_entity import BaseEntity
+from api.domain.entities.product import Product
+from api.domain.entities.store import Store
+from api.domain.entities.user import User
 from datetime import datetime
 
 

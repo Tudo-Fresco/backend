@@ -8,10 +8,10 @@ from uuid import uuid4, UUID
 class BaseEntity:
 
     def __init__(self, **kwargs):
-        self._uuid = self._enforce_uuid(kwargs.pop('uuid', uuid4()))
-        self._active = kwargs.pop('active', True)
-        self._created_at = self._enforce_datetime(kwargs.pop('created_at', datetime.now(timezone.utc)))
-        self._updated_at = self._enforce_datetime(kwargs.pop('updated_at', datetime.now(timezone.utc)))
+        self._uuid: UUID = self._enforce_uuid(kwargs.pop('uuid', uuid4()))
+        self._active: bool = kwargs.pop('active', True)
+        self._created_at: datetime = self._enforce_datetime(kwargs.pop('created_at', datetime.now(timezone.utc)))
+        self._updated_at: datetime = self._enforce_datetime(kwargs.pop('updated_at', datetime.now(timezone.utc)))
 
     @property
     def uuid(self) -> UUID:

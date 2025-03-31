@@ -1,9 +1,7 @@
 from unittest.mock import MagicMock
 from api.domain.store import Store
 from api.domain.address import Address
-from api.domain.group import Group
 from api.domain.user import User
-from api.enums.store_status import StoreStatus
 from api.exceptions.validation_exception import ValidationException
 import unittest
 

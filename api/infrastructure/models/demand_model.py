@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from api.domain.entities.demand import Demand
 from api.infrastructure.models.base_model import BaseModel
+from api.domain.entities.demand import Demand
 from api.infrastructure.models.product_model import ProductModel
 from api.infrastructure.models.store_model import StoreModel
 from api.infrastructure.models.user_model import UserModel
@@ -18,13 +18,12 @@ class DemandModel(BaseModel):
     description = Column(String(512), nullable=False)
     deadline = Column(DateTime(timezone=True), nullable=False)
 
-    store: StoreModel = relationship('StoreModel', back_populates='demands')
-    product: ProductModel = relationship('ProductModel', back_populates='demands')
-    responsible: UserModel = relationship('UserModel', back_populates='demands')
+    store: StoreModel = relationship('StoreModel')
+    product: ProductModel = relationship('ProductModel')
+    responsible: UserModel = relationship('UserModel')
 
-    def from_entity(self, entity: Demand) -> None:
-        """Convert a Demand entity to the DemandModel."""
-        self.uuid = entity.uuid
+    def _from_entity(self, entity: Demand) -> None:
+        '''Convert a Demand entity to the DemandModel.'''
         self.store_uuid = entity.store.uuid
         self.product_uuid = entity.product.uuid
         self.responsible_uuid = entity.responsible.uuid
@@ -38,10 +37,9 @@ class DemandModel(BaseModel):
         self.responsible = UserModel()
         self.responsible.from_entity(entity.responsible)
 
-    def to_entity(self) -> Demand:
-        """Convert the DemandModel to a Demand entity."""
+    def _to_entity(self) -> Demand:
+        '''Convert the DemandModel to a Demand entity.'''
         return Demand(
-            uuid=self.uuid,
             store=self.store.to_entity(),
             product=self.product.to_entity(),
             responsible=self.responsible.to_entity(),

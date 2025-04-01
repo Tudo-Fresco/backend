@@ -22,4 +22,4 @@ class Address(BaseEntity):
         self.city: str = city
         self.neighbourhood: str = neighbourhood
         self.number: str = number
-        self.additionaly_info: str = additional_info
+        self.additional_info: str = additional_info

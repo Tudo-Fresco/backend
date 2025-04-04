@@ -4,6 +4,6 @@ from api.infrastructure.repositories.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class ProductRepository(BaseRepository[Address, AddressModel]):
+class AddressRepository(BaseRepository[Address, AddressModel]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, AddressModel)

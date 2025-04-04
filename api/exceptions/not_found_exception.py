@@ -1,8 +1,7 @@
+from api.exceptions.custom_exception import CustomException
 from http import HTTPStatus
 
 
-class NotFoundException(Exception):
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message: str = message
-        self.status_code: HTTPStatus = HTTPStatus.NOT_FOUND
+class NotFoundException(CustomException):
+    def __init__(self, message) -> None:
+        super().__init__(message, HTTPStatus.NOT_FOUND)

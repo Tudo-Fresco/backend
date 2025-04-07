@@ -1,0 +1,35 @@
+from sqlalchemy import Column, Date, Enum, String
+from api.infrastructure.models.base_model import BaseModel
+from api.domain.entities.user import User
+from api.enums.gender_type import GenderType
+
+
+class UserModel(BaseModel):
+    __tablename__ = 'user'
+
+    name = Column(String(256), nullable=False)
+    email = Column(String(256), nullable=False, unique=True)
+    date_of_birth = Column(Date, nullable=False)
+    gender = Column(Enum(GenderType), nullable=False)
+    phone_number = Column(String(20), nullable=False)
+    profile_picture = Column(String, nullable=False)
+
+    def _from_entity(self, entity: User) -> None:
+        '''Convert a User entity to the UserModel.'''
+        self.name = entity.name
+        self.email = entity.email
+        self.date_of_birth = entity.date_of_birth
+        self.gender = entity.gender
+        self.phone_number = entity.phone_number
+        self.profile_picture = entity.profile_picture
+
+    def _to_entity(self) -> User:
+        '''Convert the UserModel to a User entity.'''
+        return User(
+            name=self.name,
+            email=self.email,
+            date_of_birth=self.date_of_birth,
+            gender=self.gender,
+            phone_number=self.phone_number,
+            profile_picture=self.profile_picture
+        )

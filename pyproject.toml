@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = ["Gabriel Arno Voltolini <gbrl.volt@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+sqlalchemy = "^2.0.38"
+asyncpg = "^0.30.0"
+pytest = "^8.3.5"
+freezegun = "^1.5.1"
+validate-docbr = "^1.10.0"
+alembic = "^1.15.1"
+termcolor = "^2.5.0"
+python-dotenv = "^1.0.1"
+pytz = "^2025.2"
+pydantic = "^2.11.2"
+fastapi = "^0.115.12"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest-cov = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

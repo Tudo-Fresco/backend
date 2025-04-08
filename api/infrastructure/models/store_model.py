@@ -1,6 +1,7 @@
-from sqlalchemy import Column, String, Float, ForeignKey
+from sqlalchemy import Column, Enum, String, Float, ForeignKey
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import relationship
+from api.enums.store_type import StoreType
 from api.infrastructure.models.base_model import BaseModel
 from api.domain.entities.store import Store
 from api.infrastructure.models.address_model import AddressModel
@@ -21,6 +22,7 @@ class StoreModel(BaseModel):
     preferred_phone_contact = Column(String(20), nullable=False)
     legal_email_contact = Column(String(256), nullable=False)
     preferred_email_contact = Column(String(256), nullable=False)
+    store_type = Column(Enum(StoreType), nullable=False)
 
     address = relationship('AddressModel')
     owner = relationship('UserModel')
@@ -42,6 +44,7 @@ class StoreModel(BaseModel):
         self.address.from_entity(entity.address)
         self.owner = UserModel()
         self.owner.from_entity(entity.owner)
+        self.store_type = entity.store_type
 
     def _to_entity(self) -> Store:
         '''Convert the StoreModel to a Store entity.'''
@@ -56,5 +59,6 @@ class StoreModel(BaseModel):
             legal_phone_contact=self.legal_phone_contact,
             preferred_phone_contact=self.preferred_phone_contact,
             legal_email_contact=self.legal_email_contact,
-            preferred_email_contact=self.preferred_email_contact
+            preferred_email_contact=self.preferred_email_contact,
+            store_type=self.store_type
         )

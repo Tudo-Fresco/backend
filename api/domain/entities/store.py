@@ -1,5 +1,6 @@
 from api.domain.entities.address import Address
 from api.domain.entities.base_entity import BaseEntity
+from api.enums.store_type import StoreType
 from api.shared.validator import Validator
 from api.domain.entities.user import User
 from typing import List
@@ -18,6 +19,7 @@ class Store(BaseEntity):
                 preferred_phone_contact: str,
                 legal_email_contact: str,
                 preferred_email_contact: str,
+                store_type: StoreType,
                 **kwargs):
         super().__init__(**kwargs)
         self.images: List[str] = images
@@ -31,3 +33,4 @@ class Store(BaseEntity):
         self.preferred_phone_contact: str = preferred_phone_contact
         self.legal_email_contact: str = legal_email_contact
         self.preferred_email_contact: str = preferred_email_contact
+        self.store_type: StoreType = store_type

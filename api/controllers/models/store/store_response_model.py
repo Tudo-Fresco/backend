@@ -4,6 +4,8 @@ from api.controllers.models.base_response_model import BaseResponseModel
 from api.controllers.models.user.user_response_model import UserResponseModel
 from typing import List
 
+from api.enums.store_type import StoreType
+
 
 class StoreResponseModel(BaseResponseModel):
     images: List[str] = Field(..., example=['https://example.com/image1.png'])
@@ -17,3 +19,4 @@ class StoreResponseModel(BaseResponseModel):
     preferred_phone_contact: str = Field(..., example='(11) 98765-4321')
     legal_email_contact: EmailStr = Field(..., example='legal@loja.com.br')
     preferred_email_contact: EmailStr = Field(..., example='contato@loja.com.br')
+    store_type: StoreType = Field(..., example=StoreType.PROVIDER.value)

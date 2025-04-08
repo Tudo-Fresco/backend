@@ -23,17 +23,19 @@ from api.services.store_service import StoreService
 from api.services.user_service import UserService
 
 # Config
+from api.api_config import ApiConfig
 from api.shared.env_variable_manager import EnvVariableManager
 from api.shared.logger import Logger
 
 
 class ApiRouterBuilder:
     def __init__(self):
+        ApiConfig()
         self.logger = Logger(self.__class__.__name__)
         self.logger.log_info('Initializing AppRouterBuilder')
         env = EnvVariableManager()
         db_url = env.load('DB_URL', is_sensitive=True).string()
-        self.logger.info('Creating database engine and sessionmaker')
+        self.logger.log_info('Creating database engine and sessionmaker')
         self.engine = create_async_engine(db_url, echo=False)
         self.sessionmaker = async_sessionmaker(self.engine, expire_on_commit=False)
 

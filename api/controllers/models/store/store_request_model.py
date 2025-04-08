@@ -17,4 +17,4 @@ class StoreRequestModel(BaseResquestModel):
     reputation: float = Field(0.0, example=4.5, description="Reputação da loja (de 0 a 5)")
     owner_uuid: UUID = Field(..., example="6a79c74a-5016-4f6f-ae9c-83d3c6a30851", description="UUID do proprietário da loja")
     address_uuid: UUID = Field(..., example="3ec37df2-2e6b-4b4a-9f25-60fd20ec0fd8", description="UUID do endereço da loja")
-    store_type: StoreType = Field(..., example=StoreType.PROVIDER.value)
+    store_type: StoreType = Field(..., example=StoreType.SUPPLIER.value)

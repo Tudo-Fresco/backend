@@ -6,6 +6,7 @@ from api.infrastructure.models.base_model import BaseModel
 from api.domain.entities.store import Store
 from api.infrastructure.models.address_model import AddressModel
 from api.infrastructure.models.user_model import UserModel
+from sqlalchemy.orm import Mapped
 
 
 class StoreModel(BaseModel):
@@ -24,8 +25,8 @@ class StoreModel(BaseModel):
     preferred_email_contact = Column(String(256), nullable=False)
     store_type = Column(Enum(StoreType), nullable=False)
 
-    address = relationship('AddressModel')
-    owner = relationship('UserModel')
+    address: Mapped[AddressModel] = relationship('AddressModel')
+    owner: Mapped[AddressModel]  = relationship('UserModel')
 
     def _from_entity(self, entity: Store) -> None:
         '''Convert a Store entity to the StoreModel.'''

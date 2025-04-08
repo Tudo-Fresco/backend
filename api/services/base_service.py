@@ -15,7 +15,7 @@ REQUEST = TypeVar('REQUEST', bound=BaseResquestModel)
 RESPONSE = TypeVar('RESPONSE', bound=BaseResponseModel)
 T = TypeVar('T', bound=BaseEntity)
 
-class BaseService(IService[REQUEST, RESPONSE], Generic[T]):
+class BaseService(IService[REQUEST, RESPONSE], Generic[REQUEST, RESPONSE, T]):
 
     catch = ServiceExceptionCatcher('ServiceExceptionCatcher')
 

@@ -9,7 +9,7 @@ from api.services.service_response import ServiceResponse
 REQUEST = TypeVar('REQUEST', bound=BaseResquestModel)
 RESPONSE = TypeVar('RESPONSE', bound=BaseResponseModel)
 
-class IService(Generic[REQUEST], Generic[RESPONSE]):
+class IService(Generic[REQUEST, RESPONSE]):
     '''Abstract base class defining the interface for entity repositories.
 
     This interface provides methods for basic CRUD operations on entities, with

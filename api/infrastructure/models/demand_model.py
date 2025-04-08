@@ -6,6 +6,7 @@ from api.domain.entities.demand import Demand
 from api.infrastructure.models.product_model import ProductModel
 from api.infrastructure.models.store_model import StoreModel
 from api.infrastructure.models.user_model import UserModel
+from sqlalchemy.orm import Mapped
 
 
 class DemandModel(BaseModel):
@@ -18,9 +19,9 @@ class DemandModel(BaseModel):
     description = Column(String(512), nullable=False)
     deadline = Column(DateTime(timezone=True), nullable=False)
 
-    store: StoreModel = relationship('StoreModel')
-    product: ProductModel = relationship('ProductModel')
-    responsible: UserModel = relationship('UserModel')
+    store: Mapped[StoreModel] = relationship('StoreModel')
+    product: Mapped[ProductModel] = relationship('ProductModel')
+    responsible: Mapped[UserModel] = relationship('UserModel')
 
     def _from_entity(self, entity: Demand) -> None:
         '''Convert a Demand entity to the DemandModel.'''

@@ -19,4 +19,4 @@ class StoreResponseModel(BaseResponseModel):
     preferred_phone_contact: str = Field(..., example='(11) 98765-4321')
     legal_email_contact: EmailStr = Field(..., example='legal@loja.com.br')
     preferred_email_contact: EmailStr = Field(..., example='contato@loja.com.br')
-    store_type: StoreType = Field(..., example=StoreType.PROVIDER.value)
+    store_type: StoreType = Field(..., example=StoreType.SUPPLIER.value)

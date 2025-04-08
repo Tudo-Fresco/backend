@@ -59,3 +59,7 @@ Para visualizar o relatório, abra o arquivo `htmlcov/index.html` no navegador.
 ## Notas
 
 Certifique-se de configurar variáveis de ambiente em um arquivo `.env`, se necessário.
+
+## Criar um Migration nova do banco
+alembic revision --autogenerate -m "Initial migration"
+alembic upgrade head

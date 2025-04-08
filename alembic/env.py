@@ -7,7 +7,8 @@ from sqlalchemy import engine_from_config, pool
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from api.shared.env_variable_manager import EnvVariableManager
-from api.infrastructure.models.base_model import BaseModel
+from api.infrastructure.models.base_model import Base
+target_metadata = Base.metadata  
 
 env = EnvVariableManager()
 db_url = env.load('DB_URL', is_sensitive=True).string()
@@ -17,8 +18,6 @@ config.set_main_option("sqlalchemy.url", db_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
-target_metadata = BaseModel.metadata
 
 def run_migrations_offline():
     context.configure(

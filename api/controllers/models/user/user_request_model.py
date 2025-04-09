@@ -1,10 +1,10 @@
 from datetime import date
 from pydantic import EmailStr, Field
-from api.controllers.models.base_request_model import BaseResquestModel
+from api.controllers.models.base_request_model import BaseRequestModel
 from api.enums.gender_type import GenderType
 
 
-class UserRequestModel(BaseResquestModel):
+class UserRequestModel(BaseRequestModel):
     name: str = Field(..., example='Gabriel Voltolini')
     email: EmailStr = Field(..., example='gabriel@example.com')
     date_of_birth: date = Field(..., example='2000-01-01')

@@ -1,12 +1,12 @@
 from abc import abstractmethod
 from typing import TypeVar, Generic, List
 from uuid import UUID
-from api.controllers.models.base_request_model import BaseResquestModel
+from api.controllers.models.base_request_model import BaseRequestModel
 from api.controllers.models.base_response_model import BaseResponseModel
 from api.services.service_response import ServiceResponse
 
 
-REQUEST = TypeVar('REQUEST', bound=BaseResquestModel)
+REQUEST = TypeVar('REQUEST', bound=BaseRequestModel)
 RESPONSE = TypeVar('RESPONSE', bound=BaseResponseModel)
 
 class IService(Generic[REQUEST, RESPONSE]):

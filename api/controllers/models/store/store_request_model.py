@@ -1,11 +1,11 @@
 from uuid import UUID
 from typing import List
 from pydantic import Field
-from api.controllers.models.base_request_model import BaseResquestModel
+from api.controllers.models.base_request_model import BaseRequestModel
 from api.enums.store_type import StoreType
 
 
-class StoreRequestModel(BaseResquestModel):
+class StoreRequestModel(BaseRequestModel):
     cnpj: str = Field(..., example="12.345.678/0001-90", description="CNPJ da loja")
     trade_name: str = Field(..., example="Tudo Fresco Orgânicos", description="Nome fantasia da loja")
     legal_name: str = Field(..., example="Tudo Fresco Ltda", description="Razão social da loja")

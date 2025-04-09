@@ -1,4 +1,4 @@
-from api.controllers.models.base_request_model import BaseResquestModel
+from api.controllers.models.base_request_model import BaseRequestModel
 from api.controllers.models.base_response_model import BaseResponseModel
 from api.domain.entities.base_entity import BaseEntity
 from api.exceptions.not_found_exception import NotFoundException
@@ -11,7 +11,8 @@ from typing import TypeVar, Generic, List
 from http import HTTPStatus
 from uuid import UUID
 
-REQUEST = TypeVar('REQUEST', bound=BaseResquestModel)
+
+REQUEST = TypeVar('REQUEST', bound=BaseRequestModel)
 RESPONSE = TypeVar('RESPONSE', bound=BaseResponseModel)
 T = TypeVar('T', bound=BaseEntity)
 
@@ -26,7 +27,8 @@ class BaseService(IService[REQUEST, RESPONSE], Generic[REQUEST, RESPONSE, T]):
 
     async def create(self, request: REQUEST) -> ServiceResponse[RESPONSE]:
         self.logger.log_info('Creating a new record')
-        entity: BaseEntity = self.entity(**request.model_dump())
+        request_dict: dict = request.model_dump()
+        entity: BaseEntity = self.entity(**request_dict)
         created_id = await self.repository.create(entity)
         response = RESPONSE(**entity.to_dict())
         return ServiceResponse(status=HTTPStatus.CREATED, message=f'O registro {created_id} foi criado com sucesso', payload=response)

@@ -1,8 +1,8 @@
 from pydantic import Field
-from api.controllers.models.base_request_model import BaseResquestModel
+from api.controllers.models.base_request_model import BaseRequestModel
 
 
-class AddressRequestModel(BaseResquestModel):
+class AddressRequestModel(BaseRequestModel):
     zip_code: str = Field(..., example='12345-678')
     street_address: str = Field(..., example='Av. Paulista')
     latitude: float = Field(..., example=-23.561684)

@@ -1,4 +1,4 @@
 from pydantic import BaseModel
 
-class BaseResquestModel(BaseModel):
+class BaseRequestModel(BaseModel):
     pass

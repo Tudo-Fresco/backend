@@ -2,13 +2,13 @@ from typing import Any, Generic, TypeVar, Type, List
 from uuid import UUID
 from fastapi import APIRouter, Body, Query
 from fastapi.responses import JSONResponse
-from api.controllers.models.base_request_model import BaseResquestModel
+from api.controllers.models.base_request_model import BaseRequestModel
 from api.controllers.models.base_response_model import BaseResponseModel
 from api.services.i_service import IService
 from api.services.service_response import ServiceResponse
 from api.shared.logger import Logger
 
-RequestModelT = TypeVar('RequestModelT', bound=BaseResquestModel)
+RequestModelT = TypeVar('RequestModelT', bound=BaseRequestModel)
 ResponseModelT = TypeVar('ResponseModelT', bound=BaseResponseModel)
 
 class BaseController(Generic[RequestModelT, ResponseModelT]):

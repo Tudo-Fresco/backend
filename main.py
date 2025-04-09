@@ -1,25 +1,25 @@
 from fastapi import FastAPI
 from api.api_router_builder import ApiRouterBuilder
 from api.shared.logger import Logger
+import uvicorn
 
-logger = Logger('Main')
+logger = Logger('Tudo Fresco API')
 
 def create_app() -> FastAPI:
     logger.log_info('Starting FastAPI application')
     app = FastAPI(
-        title='My API',
+        title='Tudo Fresco API',
         version='1.0.0'
     )
-
     router_builder = ApiRouterBuilder()
     routers = router_builder.build()
-
     for router in routers:
         logger.log_info(f'Including router: {router.prefix}')
         app.include_router(router)
-
     logger.log_info('All routers included. App is ready.')
     return app
 
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
+    uvicorn.run('main:app', host='0.0.0.0', port=8777)

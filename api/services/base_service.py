@@ -29,9 +29,9 @@ class BaseService(IService[REQUEST, RESPONSE], Generic[REQUEST, RESPONSE, T]):
         self.logger.log_info('Creating a new record')
         request_dict: dict = request.model_dump()
         entity: BaseEntity = self.entity(**request_dict)
-        created_id = await self.repository.create(entity)
+        await self.repository.create(entity)
         response = RESPONSE(**entity.to_dict())
-        return ServiceResponse(status=HTTPStatus.CREATED, message=f'O registro {created_id} foi criado com sucesso', payload=response)
+        return ServiceResponse(status=HTTPStatus.CREATED, message=f'O registro {entity.uuid} foi criado com sucesso', payload=response)
 
     @catch
     async def get(self, obj_id: UUID) -> ServiceResponse[RESPONSE]:
@@ -57,8 +57,8 @@ class BaseService(IService[REQUEST, RESPONSE], Generic[REQUEST, RESPONSE, T]):
         original_entity: BaseEntity = self.repository.get(obj_id)
         self._raise_not_found_when_none(original_entity, obj_id)
         original_entity.update(**request.model_dump())
-        updated_entity: BaseEntity = await self.repository.update(original_entity)
-        response = RESPONSE(**updated_entity.to_dict())
+        await self.repository.update(original_entity)
+        response = RESPONSE(**original_entity.to_dict())
         return ServiceResponse(status=HTTPStatus.OK, message='O registro foi atualizado com sucesso', payload=response)
     
     @catch

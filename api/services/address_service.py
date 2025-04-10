@@ -7,4 +7,4 @@ from api.services.base_service import BaseService
 
 class AddressService(BaseService[AddressRequestModel, AddressResponseModel, Address]):
     def __init__(self, address_repository: AddressRepository):
-        super().__init__(address_repository, Address)
+        super().__init__(address_repository, Address, AddressResponseModel)

@@ -18,7 +18,7 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
         product_repository: ProductRepository,
         user_repository: UserRepository
     ):
-        super().__init__(demand_repository, Demand)
+        super().__init__(demand_repository, Demand, DemandResponseModel)
         self.store_repo = store_repository
         self.product_repo = product_repository
         self.user_repo = user_repository

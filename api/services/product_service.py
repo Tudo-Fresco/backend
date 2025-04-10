@@ -7,4 +7,4 @@ from api.services.base_service import BaseService
 
 class ProductService(BaseService[ProductRequestModel, ProductResponseModel, Product]):
     def __init__(self, product_repository: ProductRepository):
-        super().__init__(product_repository, Product)
+        super().__init__(product_repository, Product, ProductResponseModel)

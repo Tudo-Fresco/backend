@@ -7,4 +7,4 @@ from api.services.base_service import BaseService
 
 class UserService(BaseService[UserRequestModel, UserResponseModel, User]):
     def __init__(self, user_repository: UserRepository):
-        super().__init__(user_repository, User)
+        super().__init__(user_repository, User, UserResponseModel)

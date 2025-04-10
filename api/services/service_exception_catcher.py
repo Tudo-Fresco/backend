@@ -23,8 +23,6 @@ class ServiceExceptionCatcher:
                     message=self.get_message(exception)
                 )
                 return response
-            finally:
-                self.logger.clear()
         return inner
 
     def get_status(self, exception: Exception) -> HTTPStatus:

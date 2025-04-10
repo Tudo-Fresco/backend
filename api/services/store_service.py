@@ -16,7 +16,7 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
         user_repository: UserRepository,
         address_repository: AddressRepository
     ):
-        super().__init__(store_repository, Store)
+        super().__init__(store_repository, Store, StoreResponseModel)
         self.user_repo = user_repository
         self.address_repo = address_repository
 

@@ -12,5 +12,5 @@ class UserController(BaseController[UserRequestModel, UserResponseModel]):
             request_model=UserRequestModel,
             response_model=UserResponseModel,
             prefix="/user",
-            tag=__class__.__name__
+            tag=self.__class__.__name__
         )

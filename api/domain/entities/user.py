@@ -1,8 +1,8 @@
+from api.shared.password_hasher import PasswordHasher
+from api.domain.entities.base_entity import BaseEntity
 from api.enums.gender_type import GenderType
 from api.enums.user_access import UserAccess
-from api.domain.entities.base_entity import BaseEntity
 from datetime import date
-
 
 
 class User(BaseEntity):
@@ -23,5 +23,5 @@ class User(BaseEntity):
         self.gender: GenderType = gender
         self.phone_number: str = phone_number
         self.profile_picture: str = profile_picture
-        self.password: str = password
+        self.password: str = PasswordHasher.hash(password)
         self.user_access: UserAccess = user_access

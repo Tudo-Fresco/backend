@@ -20,6 +20,8 @@ pydantic = {extras = ["email"], version = "^2.11.2"}
 fastapi = "^0.115.12"
 psycopg2-binary = "^2.9.10"
 uvicorn = "^0.34.0"
+python-jose = "^3.4.0"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 
 
 [tool.poetry.group.dev.dependencies]

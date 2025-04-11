@@ -3,6 +3,7 @@ from fastapi import APIRouter
 
 # Controllers
 from api.controllers.address_controller import AddressController
+from api.controllers.auth_controller import AuthController
 from api.controllers.demand_controller import DemandController
 from api.controllers.product_controller import ProductController
 from api.controllers.store_controller import StoreController
@@ -17,6 +18,7 @@ from api.infrastructure.repositories.user_repository import UserRepository
 
 # Services
 from api.services.address_service import AddressService
+from api.services.auth_service import AuthService
 from api.services.demand_service import DemandService
 from api.services.product_service import ProductService
 from api.services.store_service import StoreService
@@ -83,6 +85,11 @@ class ApiRouterBuilder:
         )
         demand_controller = DemandController(demand_service)
         routers.append(demand_controller.router)
+
+        #Auth
+        auth_service = AuthService(user_service)
+        auth_controller = AuthController(auth_service)
+        routers.append(auth_controller.router)
 
         self.logger.log_info('All routers successfully initialized')
         return routers

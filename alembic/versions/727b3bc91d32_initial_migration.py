@@ -1,8 +1,8 @@
-"""add new column
+"""Initial migration
 
-Revision ID: 2038a29f9e1c
+Revision ID: 727b3bc91d32
 Revises: 
-Create Date: 2025-04-09 23:08:01.750256
+Create Date: 2025-04-11 00:03:22.733933
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '2038a29f9e1c'
+revision: str = '727b3bc91d32'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -56,6 +56,8 @@ def upgrade() -> None:
     sa.Column('gender', sa.Enum('MALE', 'FEMALE', 'NOT_APPLICABLE', 'NOT_KNOWN', name='gendertype'), nullable=False),
     sa.Column('phone_number', sa.String(length=20), nullable=False),
     sa.Column('profile_picture', sa.String(), nullable=False),
+    sa.Column('password', sa.String(), nullable=False),
+    sa.Column('user_access', sa.Enum('ADMIN', name='useraccess'), nullable=False),
     sa.Column('uuid', sa.UUID(), nullable=False),
     sa.Column('active', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),

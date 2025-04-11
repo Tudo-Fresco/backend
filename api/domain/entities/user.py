@@ -1,6 +1,8 @@
 from api.enums.gender_type import GenderType
+from api.enums.user_access import UserAccess
 from api.domain.entities.base_entity import BaseEntity
 from datetime import date
+
 
 
 class User(BaseEntity):
@@ -12,6 +14,7 @@ class User(BaseEntity):
                 phone_number: str,
                 profile_picture: str,
                 password: str,
+                user_access: UserAccess,
                 **kwargs):
         super().__init__(**kwargs)
         self.name: str = name
@@ -21,3 +24,4 @@ class User(BaseEntity):
         self.phone_number: str = phone_number
         self.profile_picture: str = profile_picture
         self.password: str = password
+        self.user_access: UserAccess = user_access

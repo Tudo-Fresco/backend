@@ -23,5 +23,8 @@ class User(BaseEntity):
         self.gender: GenderType = gender
         self.phone_number: str = phone_number
         self.profile_picture: str = profile_picture
-        self.password: str = PasswordHasher.hash(password)
+        self.password: str = password
         self.user_access: UserAccess = user_access
+
+    def hash_password(self) -> None:
+        self.password: str = PasswordHasher.hash(self.password)

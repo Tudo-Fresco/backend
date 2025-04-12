@@ -73,6 +73,12 @@ class BaseEntity:
                 result[key] = value
         return result
     
+    def set_base_properties(self, uuid: UUID, active: bool, created_at: datetime, updated_at: datetime) -> None:
+        self._uuid = self._enforce_uuid(uuid)
+        self._active = active
+        self._created_at = self._enforce_datetime(created_at)
+        self._updated_at = self._enforce_datetime(updated_at)
+
     def _enforce_datetime(self, value: Any) -> datetime:
         if isinstance(value, str):
             return datetime.fromisoformat(value)

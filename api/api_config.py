@@ -15,7 +15,7 @@ class ApiConfig:
     
     def _initialize(self) -> None:
         '''Initialize configuration values from environment variables.'''
-        self.show_debug = False  # Defaults, evita AttributeError
+        self.show_debug = False
         self.show_timestamp = False
         self.env_mgr = EnvVariableManager(warn_defaults=True)
         self.show_debug: bool = self.env_mgr.load('SHOW_DEBUG_LOGS', default_value='false').boolean()

@@ -29,10 +29,7 @@ class BaseModel(Base):
     def to_entity(self) -> BaseEntity:
         '''Handle common fields and delegate specific fields to child class.'''
         entity = self._to_entity()
-        entity.uuid = self.uuid
-        entity.active = self.active
-        entity.created_at = self.created_at
-        entity.updated_at = self.updated_at
+        entity.set_base_properties(entity.uuid, self.active, self.created_at, self.updated_at)
         return entity
 
     @abstractmethod

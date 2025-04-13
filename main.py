@@ -14,12 +14,11 @@ def create_app() -> FastAPI:
     router_builder = ApiRouterBuilder()
     routers = router_builder.build()
     for router in routers:
-        logger.log_info(f'Including router: {router.prefix}')
+        logger.log_debug(f'Including router: {router.prefix}')
         app.include_router(router)
     logger.log_info('All routers included. App is ready.')
     return app
 
-app = create_app()
-
 if __name__ == '__main__':
-    uvicorn.run('main:app', host='0.0.0.0', port=8777)
+    app = create_app()
+    uvicorn.run(app, host='0.0.0.0', port=8777)

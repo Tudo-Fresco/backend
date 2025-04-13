@@ -53,7 +53,8 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
             endpoint=self._list_handler(),
             methods=["GET"],
             response_model=List[response_model],
-            summary=f"List {tag}s"
+            summary=f"List {tag}s",
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
         )
         self.router.add_api_route(
             path="/{uuid}",

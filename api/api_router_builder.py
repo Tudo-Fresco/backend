@@ -49,7 +49,7 @@ class ApiRouterBuilder:
         session = self.sessionmaker()
 
         # User
-        self.logger.log_info('Creating UserRepository, UserService, and UserController')
+        self.logger.log_debug('Creating UserRepository, UserService, and UserController')
         user_repository = UserRepository(session)
         user_service = UserService(user_repository)
         
@@ -63,28 +63,28 @@ class ApiRouterBuilder:
         routers.append(user_controller.router)
 
         # Address
-        self.logger.log_info('Creating AddressRepository, AddressService, and AddressController')
+        self.logger.log_debug('Creating AddressRepository, AddressService, and AddressController')
         address_repository = AddressRepository(session)
         address_service = AddressService(address_repository)
         address_controller = AddressController(address_service, auth_wrapper)
         routers.append(address_controller.router)
 
         # Store
-        self.logger.log_info('Creating StoreRepository, StoreService, and StoreController')
+        self.logger.log_debug('Creating StoreRepository, StoreService, and StoreController')
         store_repository = StoreRepository(session)
         store_service = StoreService(store_repository, user_repository, address_repository)
         store_controller = StoreController(store_service, auth_wrapper)
         routers.append(store_controller.router)
 
         # Product
-        self.logger.log_info('Creating ProductRepository, ProductService, and ProductController')
+        self.logger.log_debug('Creating ProductRepository, ProductService, and ProductController')
         product_repository = ProductRepository(session)
         product_service = ProductService(product_repository)
         product_controller = ProductController(product_service, auth_wrapper)
         routers.append(product_controller.router)
 
         # Demand
-        self.logger.log_info('Creating DemandRepository, DemandService, and DemandController')
+        self.logger.log_debug('Creating DemandRepository, DemandService, and DemandController')
         demand_repository = DemandRepository(session)
         demand_service = DemandService(
             demand_repository,

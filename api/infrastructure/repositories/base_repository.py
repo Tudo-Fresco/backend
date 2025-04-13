@@ -39,6 +39,8 @@ class BaseRepository(IRepository[T], Generic[T, M]):
 
     async def list(self, page: int = 1, per_page: int = 10) -> List[T]:
         self.logger.log_info(f'Listing records (page {page}, per_page {per_page})')
+        if page < 1:
+            page = 1
         query = select(self.model_class).filter_by(active=True).offset((page - 1) * per_page).limit(per_page)
         result = await self.session.execute(query)
         models = result.scalars().all()

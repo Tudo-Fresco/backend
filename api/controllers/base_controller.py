@@ -1,9 +1,11 @@
 from typing import Any, Generic, TypeVar, Type, List
 from uuid import UUID
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body, Depends, Query
 from fastapi.responses import JSONResponse
+from api.controllers.auth_wrapper import AuthWrapper
 from api.controllers.models.base_request_model import BaseRequestModel
 from api.controllers.models.base_response_model import BaseResponseModel
+from api.enums.user_access import UserAccess
 from api.services.i_service import IService
 from api.services.service_response import ServiceResponse
 from api.shared.logger import Logger
@@ -19,13 +21,15 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
         request_model: Type[RequestModelT],
         response_model: Type[ResponseModelT],
         prefix: str,
-        tag: str
+        tag: str,
+        auth_wrapper: AuthWrapper
     ):
         self.service = service
         self.logger = Logger(tag)
         self.router = APIRouter(prefix=prefix, tags=[tag])
         self.request_model = request_model
         self.response_model = response_model
+        self.auth_wrapper = auth_wrapper
 
         self.router.add_api_route(
             path="/",
@@ -33,14 +37,16 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
             methods=["POST"],
             response_model=response_model,
             status_code=201,
-            summary=f"Create {tag}"
+            summary=f"Create {tag}",
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
         )
         self.router.add_api_route(
             path="/{uuid}",
             endpoint=self._get_handler(),
             methods=["GET"],
             response_model=response_model,
-            summary=f"Get {tag} by UUID"
+            summary=f"Get {tag} by UUID",
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
         )
         self.router.add_api_route(
             path="/",
@@ -54,14 +60,16 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
             endpoint=self._update_handler(),
             methods=["PUT"],
             response_model=response_model,
-            summary=f"Update {tag} by UUID"
+            summary=f"Update {tag} by UUID",
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
         )
         self.router.add_api_route(
             path="/{uuid}",
             endpoint=self._delete_handler(),
             methods=["DELETE"],
             response_model=dict,
-            summary=f"Delete {tag} by UUID"
+            summary=f"Delete {tag} by UUID",
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
         )
 
     def _create_handler(self):

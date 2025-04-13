@@ -14,6 +14,7 @@ class AuthService:
         self.secret_key = env.load('JWT_SECRET_KEY', is_sensitive=True).string()
         self.algorithm = 'HS256'
         self.token_expire_minutes = env.load('USER_TOKEN_EXPIRATION_MINUTES', 60).integer()
+        self.sessions_cache: dict[str, User] = {}
 
     async def authenticate_user(self, email: str, password: str) -> str:
         service_response = await self.user_service.get_by_email(email)
@@ -54,6 +55,13 @@ class AuthService:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Insufficient privileges'
             )
+
+    async def validate_token(self, token: str, allowed_access: list[UserAccess]) -> bool:
+        try:
+            user = await self.get_user_from_token(token)
+            return user.user_access in allowed_access
+        except Exception:
+            return False
 
     def _create_access_token(self, data: dict, expires_delta: timedelta | None = None) -> str:
         to_encode = data.copy()

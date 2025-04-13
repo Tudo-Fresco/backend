@@ -19,7 +19,7 @@ class ServiceExceptionCatcher:
                 self.logger.log_error(f'An error occurred: {exception}')
                 self.logger.log_debug(f'Exception details: {traceback.format_exc()}')
                 response = ServiceResponse(
-                    status_code=self.get_status(exception),
+                    status=self.get_status(exception),
                     message=self.get_message(exception)
                 )
                 return response

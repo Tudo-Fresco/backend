@@ -4,12 +4,14 @@ from fastapi import APIRouter
 # Controllers
 from api.controllers.address_controller import AddressController
 from api.controllers.auth_controller import AuthController
+from api.controllers.auth_wrapper import AuthWrapper
 from api.controllers.demand_controller import DemandController
 from api.controllers.product_controller import ProductController
 from api.controllers.store_controller import StoreController
 from api.controllers.user_controller import UserController
 
 # Repositories
+from api.enums.user_access import UserAccess
 from api.infrastructure.repositories.address_repository import AddressRepository
 from api.infrastructure.repositories.demand_repository import DemandRepository
 from api.infrastructure.repositories.product_repository import ProductRepository
@@ -46,32 +48,39 @@ class ApiRouterBuilder:
         routers = []
         session = self.sessionmaker()
 
-        # Address
-        self.logger.log_info('Creating AddressRepository, AddressService, and AddressController')
-        address_repository = AddressRepository(session)
-        address_service = AddressService(address_repository)
-        address_controller = AddressController(address_service)
-        routers.append(address_controller.router)
-
         # User
         self.logger.log_info('Creating UserRepository, UserService, and UserController')
         user_repository = UserRepository(session)
         user_service = UserService(user_repository)
-        user_controller = UserController(user_service)
+        
+        #Auth
+        auth_service = AuthService(user_service)
+        auth_controller = AuthController(auth_service)
+        routers.append(auth_controller.router)
+        auth_wrapper = AuthWrapper(auth_service)
+
+        user_controller = UserController(user_service, auth_wrapper)
         routers.append(user_controller.router)
+
+        # Address
+        self.logger.log_info('Creating AddressRepository, AddressService, and AddressController')
+        address_repository = AddressRepository(session)
+        address_service = AddressService(address_repository)
+        address_controller = AddressController(address_service, auth_wrapper)
+        routers.append(address_controller.router)
 
         # Store
         self.logger.log_info('Creating StoreRepository, StoreService, and StoreController')
         store_repository = StoreRepository(session)
         store_service = StoreService(store_repository, user_repository, address_repository)
-        store_controller = StoreController(store_service)
+        store_controller = StoreController(store_service, auth_wrapper)
         routers.append(store_controller.router)
 
         # Product
         self.logger.log_info('Creating ProductRepository, ProductService, and ProductController')
         product_repository = ProductRepository(session)
         product_service = ProductService(product_repository)
-        product_controller = ProductController(product_service)
+        product_controller = ProductController(product_service, auth_wrapper)
         routers.append(product_controller.router)
 
         # Demand
@@ -83,13 +92,8 @@ class ApiRouterBuilder:
             product_repository,
             user_repository
         )
-        demand_controller = DemandController(demand_service)
+        demand_controller = DemandController(demand_service, auth_wrapper)
         routers.append(demand_controller.router)
-
-        #Auth
-        auth_service = AuthService(user_service)
-        auth_controller = AuthController(auth_service)
-        routers.append(auth_controller.router)
 
         self.logger.log_info('All routers successfully initialized')
         return routers

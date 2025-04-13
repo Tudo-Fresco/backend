@@ -18,11 +18,3 @@ class AuthController:
                 password=form_data.password
             )
             return {'access_token': token, 'token_type': 'bearer'}
-
-        @self.router.get('/check')
-        async def check_token(token: str = Depends(self.oauth2_scheme)):
-            try:
-                await self.auth_service.get_user_from_token(token)
-                return {'valid': True}
-            except HTTPException:
-                return {'valid': False}

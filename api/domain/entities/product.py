@@ -42,5 +42,5 @@ class Product(BaseEntity):
         try:
             return self.UNIT_TYPE_ABBREVIATIONS[unit_type]
         except KeyError:
-            raise ValueError(f'Tipo de unidade desconhecido: {unit_type} ou idioma não suportado: {lang}')
+            raise ValueError(f'Tipo de unidade desconhecido: {unit_type}')
     

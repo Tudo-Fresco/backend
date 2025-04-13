@@ -46,6 +46,8 @@ class BaseEntity:
 
     def update(self, **kwargs) -> None:
         for key, value in kwargs.items():
+            if key in ['uuid', 'created_at', 'updated_at', 'active']:
+                continue
             setattr(self, key, value)
         self.update_timestamp()
 

@@ -27,7 +27,7 @@ class BaseRepository(IRepository[T], Generic[T, M]):
             await self.session.commit()
 
     async def get(self, obj_id: UUID) -> T:
-        self.logger.log_info(f'Retrieving record: {obj_id}')
+        self.logger.log_debug(f'Retrieving record: {obj_id}')
         result = await self.session.execute(
             select(self.model_class).filter_by(uuid=obj_id, active=True)
         )
@@ -38,7 +38,7 @@ class BaseRepository(IRepository[T], Generic[T, M]):
         return model.to_entity()
 
     async def list(self, page: int = 1, per_page: int = 10) -> List[T]:
-        self.logger.log_info(f'Listing records (page {page}, per_page {per_page})')
+        self.logger.log_debug(f'Listing records (page {page}, per_page {per_page})')
         if page < 1:
             page = 1
         query = select(self.model_class).filter_by(active=True).offset((page - 1) * per_page).limit(per_page)
@@ -47,10 +47,10 @@ class BaseRepository(IRepository[T], Generic[T, M]):
         return [model.to_entity() for model in models]
 
     async def update(self, obj: T) -> None:
-        self.logger.log_info(f'Updating the record: {obj.uuid}')
+        self.logger.log_debug(f'Updating the record: {obj.uuid}')
         await self.get(obj.uuid)
         model = self.model_class()
         model.from_entity(obj)
         await self.session.merge(model)
         await self.session.commit()
-        self.logger.log_info(f'The record {obj.uuid} was updated successfully')
+        self.logger.log_debug(f'The record {obj.uuid} was updated successfully')

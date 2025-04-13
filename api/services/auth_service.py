@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from jose import ExpiredSignatureError, JWTError, jwt
 from fastapi import HTTPException, status
+from api.controllers.models.user.user_response_model import UserResponseModel
 from api.domain.entities.user import User
 from api.enums.user_access import UserAccess
 from api.services.user_service import UserService
@@ -34,8 +35,8 @@ class AuthService:
         access_token = self._create_access_token(jwt_body, expires)
         return access_token
 
-    async def verify_access(self, token: str, required_access: list[UserAccess]) -> User | None:
-        user: User = await self._get_user_from_token(token)
+    async def verify_access(self, token: str, required_access: list[UserAccess]) -> UserResponseModel | None:
+        user: UserResponseModel = await self._get_user_from_token(token)
         if user.user_access not in required_access:
             self.logger.log_info('The user is not authorized')
             raise HTTPException(
@@ -45,7 +46,7 @@ class AuthService:
         self.logger.log_debug('The user is authorized')
         return user
         
-    async def _get_user_from_token(self, token: str) -> User:
+    async def _get_user_from_token(self, token: str) -> UserResponseModel:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Credenciais inválidas',
@@ -68,7 +69,7 @@ class AuthService:
             raise credentials_exception
         self.logger.log_debug(f'Getting user {user_id}')
         service_response = await self.user_service.get(user_id)
-        user = service_response.payload
+        user: UserResponseModel = service_response.payload
         if user is None:
             raise credentials_exception
         return user

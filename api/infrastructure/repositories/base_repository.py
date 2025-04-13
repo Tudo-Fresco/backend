@@ -34,7 +34,7 @@ class BaseRepository(IRepository[T], Generic[T, M]):
         model = result.scalars().one_or_none()
         if model is None:
             self.logger.log_warning(f'No active record found for UUID: {obj_id}')
-            raise NotFoundException(f'Active record with UUID {obj_id} not found')
+            raise NotFoundException(f'Nenhum registro com o id {obj_id} foi encontrado')
         return model.to_entity()
 
     async def list(self, page: int = 1, per_page: int = 10) -> List[T]:

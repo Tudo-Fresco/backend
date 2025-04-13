@@ -97,23 +97,19 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
     def _update_handler(self):
         async def update(uuid: UUID, model: self.request_model = Body(...)) -> JSONResponse:
             self.logger.log_info(f"Updating entity {uuid}")
-            service_response: ServiceResponse = await self.service.update(uuid=uuid, request=model)
+            service_response: ServiceResponse = await self.service.update(obj_id=uuid, request=model)
             return JSONResponse(content=self.make_content(service_response))
         return update
 
     def _delete_handler(self):
         async def delete(uuid: UUID) -> JSONResponse:
             self.logger.log_info(f"Deleting entity {uuid}")
-            service_response: ServiceResponse = await self.service.delete(uuid=uuid)
+            service_response: ServiceResponse = await self.service.delete(obj_id=uuid)
             return JSONResponse(content=self.make_content(service_response))
         return delete
 
     def make_content(self, service_response: ServiceResponse) -> dict[str, Any]:
         payload = service_response.payload
-        if isinstance(payload, BaseResponseModel):
-            return jsonable_encoder(payload)
-        elif isinstance(payload, list) and all(isinstance(item, BaseResponseModel) for item in payload):
-            return jsonable_encoder(payload)
         return jsonable_encoder({
             'payload': payload or {},
             'message': service_response.message

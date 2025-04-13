@@ -1,8 +1,10 @@
 from api.domain.entities.base_entity import BaseEntity
 from api.domain.entities.product import Product
 from api.domain.entities.store import Store
+from api.shared.validator import Validator
 from api.domain.entities.user import User
 from datetime import datetime
+
 
 
 class Demand(BaseEntity):
@@ -21,4 +23,3 @@ class Demand(BaseEntity):
         self.needed_count: int = needed_count
         self.description: str = description
         self.deadline: datetime= deadline
-        

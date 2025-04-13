@@ -10,4 +10,3 @@ class ProductRequestModel(BaseRequestModel):
     unit_type: UnitType = Field(..., example='KILOGRAM')
     type: ProductType = Field(..., example=ProductType.GRAIN.value)
     images: List[str] = Field(default_factory=list, example=['https://example.com/image1.jpg'])
-    search_name: str = Field('', example='arroz organico')

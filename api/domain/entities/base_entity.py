@@ -31,7 +31,7 @@ class BaseEntity:
 
     @abstractmethod
     def validate(self) -> None:
-        raise NotImplementedError('This method must be implemented by subclasses')
+        return None
 
     def activate(self) -> None:
         self._active = True

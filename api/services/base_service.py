@@ -30,6 +30,7 @@ class BaseService(IService[REQUEST, RESPONSE], Generic[REQUEST, RESPONSE, T]):
     async def create(self, request: REQUEST) -> ServiceResponse[RESPONSE]:
         self.logger.log_info('Creating a new record')
         entity: BaseEntity = self.entity(**request.model_dump())
+        entity.validate()
         await self.repository.create(entity)
         response = self.response_model(**entity.to_dict())
         return ServiceResponse(status=HTTPStatus.CREATED, message=f'O registro {entity.uuid} foi criado com sucesso', payload=response)

@@ -6,4 +6,3 @@ class LogType(Enum):
     WARNING = 'WARNING'
     DEBUG = 'DEBUG'
     INFO = 'INFO'
-    PROGRESS = 'PROGRESS'

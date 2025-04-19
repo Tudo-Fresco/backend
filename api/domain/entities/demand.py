@@ -1,7 +1,7 @@
 from api.domain.entities.base_entity import BaseEntity
 from api.domain.entities.product import Product
 from api.domain.entities.store import Store
-from api.shared.validator import Validator
+from api.enums.demand_status import DemandStatus
 from api.domain.entities.user import User
 from datetime import datetime
 
@@ -14,7 +14,8 @@ class Demand(BaseEntity):
                 responsible: User,
                 needed_count: int,
                 description: str,
-                deadline: datetime, 
+                deadline: datetime,
+                status: DemandStatus,
                 **kwargs):
         super().__init__(**kwargs)
         self.store: Store = store
@@ -22,4 +23,5 @@ class Demand(BaseEntity):
         self.responsible: User = responsible
         self.needed_count: int = needed_count
         self.description: str = description
-        self.deadline: datetime= deadline
+        self.deadline: datetime = deadline
+        self.status: DemandStatus = status

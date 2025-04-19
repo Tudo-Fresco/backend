@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Enum, Integer, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+from api.enums.demand_status import DemandStatus
 from api.infrastructure.models.base_model import BaseModel
 from api.domain.entities.demand import Demand
 from api.infrastructure.models.product_model import ProductModel
@@ -18,6 +19,7 @@ class DemandModel(BaseModel):
     needed_count = Column(Integer, nullable=False)
     description = Column(String(512), nullable=False)
     deadline = Column(DateTime(timezone=True), nullable=False)
+    status = Column(Enum(DemandStatus), nullable=False, default=DemandStatus.OPENED)
 
     store: Mapped[StoreModel] = relationship('StoreModel')
     product: Mapped[ProductModel] = relationship('ProductModel')
@@ -37,6 +39,8 @@ class DemandModel(BaseModel):
         self.product.from_entity(entity.product)
         self.responsible = UserModel()
         self.responsible.from_entity(entity.responsible)
+        self.status = entity.status
+
 
     def _to_entity(self) -> Demand:
         '''Convert the DemandModel to a Demand entity.'''
@@ -46,5 +50,6 @@ class DemandModel(BaseModel):
             responsible=self.responsible.to_entity(),
             needed_count=self.needed_count,
             description=self.description,
-            deadline=self.deadline
+            deadline=self.deadline,
+            status=self.status
         )

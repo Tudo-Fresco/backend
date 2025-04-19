@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: 727b3bc91d32
+Revision ID: 1aa38dfd1c95
 Revises: 
-Create Date: 2025-04-11 00:03:22.733933
+Create Date: 2025-04-19 14:41:36.560132
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '727b3bc91d32'
+revision: str = '1aa38dfd1c95'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -57,7 +57,7 @@ def upgrade() -> None:
     sa.Column('phone_number', sa.String(length=20), nullable=False),
     sa.Column('profile_picture', sa.String(), nullable=False),
     sa.Column('password', sa.String(), nullable=False),
-    sa.Column('user_access', sa.Enum('ADMIN', name='useraccess'), nullable=False),
+    sa.Column('user_access', sa.Enum('ADMIN', 'GUEST', name='useraccess'), nullable=False),
     sa.Column('uuid', sa.UUID(), nullable=False),
     sa.Column('active', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
@@ -94,6 +94,7 @@ def upgrade() -> None:
     sa.Column('needed_count', sa.Integer(), nullable=False),
     sa.Column('description', sa.String(length=512), nullable=False),
     sa.Column('deadline', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('status', sa.Enum('OPENED', 'CLOSED', 'CANCELED', name='demandstatus'), nullable=False),
     sa.Column('uuid', sa.UUID(), nullable=False),
     sa.Column('active', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),

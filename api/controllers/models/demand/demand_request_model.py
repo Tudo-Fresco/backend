@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import Field
 from api.controllers.models.base_request_model import BaseRequestModel
+from api.enums.demand_status import DemandStatus
 
 
 class DemandRequestModel(BaseRequestModel):
@@ -12,3 +13,5 @@ class DemandRequestModel(BaseRequestModel):
     needed_count: int = Field(..., example=50)
     description: str = Field(..., example='50 packs of organic rice')
     deadline: datetime = Field(..., example='2025-10-01T12:00:00')
+    status: DemandStatus = Field(..., example=DemandStatus.OPENED.value)
+

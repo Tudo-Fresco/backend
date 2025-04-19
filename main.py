@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from api.api_router_builder import ApiRouterBuilder
 from api.shared.logger import Logger
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 logger = Logger('Tudo Fresco API')
@@ -10,6 +11,13 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title='Tudo Fresco API',
         version='1.0.0'
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
     router_builder = ApiRouterBuilder()
     routers = router_builder.build()

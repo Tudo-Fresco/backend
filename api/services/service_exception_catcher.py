@@ -3,6 +3,7 @@ from api.services.service_response import ServiceResponse
 from api.shared.logger import Logger
 from http import HTTPStatus
 import traceback
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
 class ServiceExceptionCatcher:
@@ -29,10 +30,16 @@ class ServiceExceptionCatcher:
         status = HTTPStatus.INTERNAL_SERVER_ERROR
         if isinstance(exception, CustomException):
             status = exception.status
+        if isinstance(exception, StarletteHTTPException):
+            status = exception.status_code
         return status
     
     def get_message(self, exception: Exception) -> str:
+        message: str = 'Algo inesperado aconteceu, contatar suporte.'
         if isinstance(exception, CustomException):
-            return exception.message
+            message = exception.message
+        if isinstance(exception, StarletteHTTPException):
+            message = exception.detail
+        self.logger.log_warning(message)
         self.logger.log_error(str(exception))
-        return 'Algo inesperado aconteceu, contatar suporte.'
+        return message

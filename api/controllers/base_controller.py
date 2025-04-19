@@ -77,40 +77,42 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
         async def create(model: self.request_model = Body(...)) -> JSONResponse:
             self.logger.log_info("Creating entity")
             service_response: ServiceResponse = await self.service.create(request=model)
-            return JSONResponse(content=self.make_content(service_response))
+            return self.make_response(service_response)
         return create
 
     def _get_handler(self):
         async def get(uuid: UUID) -> JSONResponse:
             self.logger.log_info(f"Reading entity {uuid}")
             service_response: ServiceResponse = await self.service.get(uuid)
-            return JSONResponse(content=self.make_content(service_response))
+            return self.make_response(service_response)
         return get
 
     def _list_handler(self):
         async def list_entities(page: int = Query(...), per_page: int = Query(10)) -> JSONResponse:
             self.logger.log_info(f"Listing entities page: {page}, per_page: {per_page}")
             service_response: ServiceResponse = await self.service.list(page=page, per_page=per_page)
-            return JSONResponse(content=self.make_content(service_response))
+            return self.make_response(service_response)
         return list_entities
 
     def _update_handler(self):
         async def update(uuid: UUID, model: self.request_model = Body(...)) -> JSONResponse:
             self.logger.log_info(f"Updating entity {uuid}")
             service_response: ServiceResponse = await self.service.update(obj_id=uuid, request=model)
-            return JSONResponse(content=self.make_content(service_response))
+            return self.make_response(service_response)
         return update
 
     def _delete_handler(self):
         async def delete(uuid: UUID) -> JSONResponse:
             self.logger.log_info(f"Deleting entity {uuid}")
             service_response: ServiceResponse = await self.service.delete(obj_id=uuid)
-            return JSONResponse(content=self.make_content(service_response))
+            return self.make_response(service_response)
         return delete
-
-    def make_content(self, service_response: ServiceResponse) -> dict[str, Any]:
-        payload = service_response.payload
-        return jsonable_encoder({
-            'payload': payload or {},
-            'message': service_response.message
-        })
+    
+    def make_response(self, service_response: ServiceResponse) -> JSONResponse:
+        return JSONResponse(
+            status_code=service_response.status,
+            content=jsonable_encoder({
+                'payload': service_response.payload or {},
+                'message': service_response.message
+            })
+        )

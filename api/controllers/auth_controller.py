@@ -1,5 +1,6 @@
 from typing import Any
 from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from api.services.auth_service import AuthService
 from api.services.service_response import ServiceResponse
@@ -24,8 +25,10 @@ class AuthController:
             return self.make_content(service_response)
         
     def make_content(self, service_response: ServiceResponse) -> dict[str, Any]:
-        payload = service_response.payload
-        return jsonable_encoder({
-            'payload': payload or {},
-            'message': service_response.message
-        })
+        return JSONResponse(
+            status_code=service_response.status,
+            content=jsonable_encoder({
+                'payload': service_response.payload,
+                'message': service_response.message
+            })
+        )

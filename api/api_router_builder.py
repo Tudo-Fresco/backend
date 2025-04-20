@@ -11,7 +11,6 @@ from api.controllers.store_controller import StoreController
 from api.controllers.user_controller import UserController
 
 # Repositories
-from api.enums.user_access import UserAccess
 from api.infrastructure.repositories.address_repository import AddressRepository
 from api.infrastructure.repositories.demand_repository import DemandRepository
 from api.infrastructure.repositories.product_repository import ProductRepository

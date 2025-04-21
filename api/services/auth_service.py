@@ -29,7 +29,7 @@ class AuthService:
 
     @catch
     async def authenticate_user(self, email: str, password: str) ->  ServiceResponse[dict[str, str] | None]:
-        self.validator.on(email, 'E-mail').email_is_valid(f'{email} é inválido')
+        self.validator.on(email, 'E-mail').email_is_valid(f'"{email}" é inválido')
         self.validator.on(password, 'Senha').not_empty('Não foi informada')
         self.validator.check()
         self.logger.log_debug(f'Providing a new JWT token for the user {email}')
@@ -64,7 +64,7 @@ class AuthService:
             self.logger.log_info('The user is not authorized')
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f'O usuário {user.email} não possui o privilégio para executar esta ação'
+                detail=f'O usuário "{user.email}" não possui o privilégio para executar esta ação'
             )
         self.logger.log_debug('The user is authorized')
         return ServiceResponse(status=status.HTTP_200_OK, message=f'O usuário {user.email} está autenticado', payload=user)

@@ -28,3 +28,7 @@ class User(BaseEntity):
 
     def hash_password(self) -> None:
         self.password: str = PasswordHasher.hash(self.password)
+
+    def set_profile_picture(self, profile_picture_url: str) -> None:
+        self.profile_picture = profile_picture_url
+

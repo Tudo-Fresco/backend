@@ -43,9 +43,10 @@ class GoogleBucketsClient:
         blob = self.bucket.blob(blob_name)
         await asyncio.to_thread(blob.delete)
 
-    async def update_image(self, new_image_bytes: bytes, original_filename: str, old_blob_name: str) -> str:
-        self.logger.log_debug(f'Updating image, file name: {old_blob_name}')
-        await self.delete_image(old_blob_name)
+    async def update_image(self, new_image_bytes: bytes, original_filename: str, old_blob_name: Optional[str] = None) -> str:
+        self.logger.log_debug(f'Updating image, old file name: {old_blob_name}')
+        if old_blob_name and old_blob_name.strip():
+            await self.delete_image(old_blob_name)
         return await self.save_image(new_image_bytes, original_filename)
 
     async def read_image(self, blob_name: str, expires_in_seconds: int = 900) -> str:

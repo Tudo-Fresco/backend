@@ -1,6 +1,8 @@
+from api.clients.google_buckets_client import GoogleBucketsClient
 from api.controllers.models.user.user_request_model import UserRequestModel
 from api.controllers.models.user.user_response_model import UserResponseModel
 from api.domain.entities.user import User
+from api.enums.bucket_name import BucketName
 from api.enums.user_access import UserAccess
 from api.exceptions.validation_exception import ValidationException
 from api.infrastructure.repositories.user_repository import UserRepository
@@ -37,3 +39,22 @@ class UserService(BaseService[UserRequestModel, UserResponseModel, User]):
             raise ValidationException('Não é possível cadastrar-se como administrador, escolha outra opção.')
         service_response = await self.create(request)
         return service_response
+    
+    @catch
+    async def upload_profile_picture(self, user_uuid: str, image_bytes: bytes, file_name: str) -> ServiceResponse[UserResponseModel]:
+        self.logger.log_info(f'Uploading profile picture for user {user_uuid}')
+        user: User = await self.repository.get(user_uuid)
+        bucket_client = GoogleBucketsClient(BucketName.USER_PROFILE)
+        new_blob_name = await bucket_client.update_image(
+            new_image_bytes=image_bytes,
+            original_filename=file_name,
+            old_blob_name=user.profile_picture
+        )
+        user.profile_picture = new_blob_name
+        await self.repository.update(user)
+        response = self.response_model(**user.to_dict())
+        return ServiceResponse(
+            status=HTTPStatus.OK,
+            message='Foto de perfil atualizada com sucesso',
+            payload=response
+        )

@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Date, Enum, String
 from api.enums.user_access import UserAccess
+from api.enums.user_verification_status import UserVerificationStatus
 from api.infrastructure.models.base_model import BaseModel
 from api.domain.entities.user import User
 from api.enums.gender_type import GenderType
@@ -16,6 +17,7 @@ class UserModel(BaseModel):
     profile_picture = Column(String, nullable=False)
     password = Column(String, nullable=False)
     user_access = Column(Enum(UserAccess), nullable=False)
+    verification_status = Column(Enum(UserVerificationStatus), nullable=True)
 
 
     def _from_entity(self, entity: User) -> None:
@@ -28,6 +30,7 @@ class UserModel(BaseModel):
         self.profile_picture = entity.profile_picture
         self.password = entity.password
         self.user_access = entity.user_access
+        self.verification_status = entity.verification_status
 
     def _to_entity(self) -> User:
         '''Convert the UserModel to a User entity.'''
@@ -39,5 +42,6 @@ class UserModel(BaseModel):
             phone_number=self.phone_number,
             profile_picture=self.profile_picture,
             password=self.password,
-            user_access=self.user_access
+            user_access=self.user_access,
+            verification_status = self.verification_status
         )

@@ -3,6 +3,7 @@ from pydantic import EmailStr, Field
 from api.controllers.models.base_response_model import BaseResponseModel
 from api.enums.gender_type import GenderType
 from api.enums.user_access import UserAccess
+from api.enums.user_verification_status import UserVerificationStatus
 
 
 class UserResponseModel(BaseResponseModel):
@@ -13,3 +14,4 @@ class UserResponseModel(BaseResponseModel):
     phone_number: str = Field(..., example='+55 47 99999-9999')
     profile_picture: str = Field(..., example='https://example.com/profile.jpg')
     user_access: UserAccess = Field(..., example=UserAccess.ADMIN)
+    verification_status: UserVerificationStatus = Field(..., example=UserVerificationStatus.EMAIL_AND_PHONE)

@@ -1,3 +1,4 @@
+from api.enums.user_verification_status import UserVerificationStatus
 from api.shared.password_hasher import PasswordHasher
 from api.domain.entities.base_entity import BaseEntity
 from api.enums.gender_type import GenderType
@@ -15,6 +16,7 @@ class User(BaseEntity):
                 profile_picture: str,
                 password: str,
                 user_access: UserAccess,
+                verification_status: UserVerificationStatus = UserVerificationStatus.PENDING,
                 **kwargs):
         super().__init__(**kwargs)
         self.name: str = name
@@ -25,6 +27,7 @@ class User(BaseEntity):
         self.profile_picture: str = profile_picture
         self.password: str = password
         self.user_access: UserAccess = user_access
+        self.verification_status: UserVerificationStatus = verification_status
 
     def hash_password(self) -> None:
         self.password: str = PasswordHasher.hash(self.password)

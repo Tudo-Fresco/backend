@@ -13,9 +13,9 @@ class User(BaseEntity):
                 date_of_birth: date,
                 gender: GenderType,
                 phone_number: str,
-                profile_picture: str,
                 password: str,
                 user_access: UserAccess,
+                profile_picture: str = '',
                 verification_status: UserVerificationStatus = UserVerificationStatus.PENDING,
                 **kwargs):
         super().__init__(**kwargs)
@@ -24,9 +24,9 @@ class User(BaseEntity):
         self.date_of_birth: date = date_of_birth
         self.gender: GenderType = gender
         self.phone_number: str = phone_number
-        self.profile_picture: str = profile_picture
         self.password: str = password
         self.user_access: UserAccess = user_access
+        self.profile_picture: str = profile_picture
         self.verification_status: UserVerificationStatus = verification_status
 
     def hash_password(self) -> None:

@@ -11,6 +11,5 @@ class UserRequestModel(BaseRequestModel):
     date_of_birth: date = Field(..., example='2000-01-01')
     gender: GenderType = Field(..., example=GenderType.MALE.value)
     phone_number: str = Field(..., example='+55 47 99999-9999')
-    profile_picture: str = Field(..., example='https://example.com/profile.jpg')
     password: str = Field(..., example='securepassword123')
-    user_access: UserAccess = Field(..., example=UserAccess.ADMIN)
+    user_access: UserAccess = Field(default=UserAccess.STORE_OWNER, example=UserAccess.STORE_OWNER)

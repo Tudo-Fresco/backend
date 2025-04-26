@@ -16,11 +16,11 @@ class GoogleBucketsClient:
     def __init__(self, bucket_name: BucketName):
         self.logger = Logger('GoogleBucketsClient')
         self.env = EnvVariableManager()
-        storage_account_file_path: str = self.env.load('STORAGE_ACCOUNT_FILE_PATH', 'auth/storage-account.json')
+        storage_account_file_path: str = self.env.load('STORAGE_ACCOUNT_FILE_PATH', 'auth/tudo-fresco-backend.json').string()
         credentials = service_account.Credentials.from_service_account_file(storage_account_file_path)
         self.client = storage.Client(credentials=credentials)
-        self.logger.log_info(f'Using the bucket {bucket_name.name}')
-        self.bucket = self.client.bucket(bucket_name.name)
+        self.logger.log_info(f'Using the bucket {bucket_name.value}')
+        self.bucket = self.client.bucket(bucket_name.value)
         self.image_directory = 'images'
 
     def _generate_unique_filename(self, original_filename: str, folder: Optional[str] = '') -> str:

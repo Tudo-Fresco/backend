@@ -42,5 +42,5 @@ class User(BaseEntity):
         validator.on(self.password, 'Senha').has_minimum_special_characters(2, 'deve conter pelo menos 2 caracteres especiais')
         validator.on(self.password, 'Senha').has_minimum_numbers(2, 'deve conter pelo menos 2 números')
         validator.on(self.password, 'Senha').character_limit(32, 'deve ser menor do que 32 caracteres')
-        validator.on(self.password, 'Senha').character_minimum(4, 'deve ser maior do que 4 caracteres')
+        validator.on(self.password, 'Senha').character_minimum(6, 'deve conter pelo menos 6 caracteres')
         validator.check()

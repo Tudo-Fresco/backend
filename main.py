@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from api.api_router_builder import ApiRouterBuilder
+from api.shared.env_variable_manager import EnvVariableManager
 from api.shared.logger import Logger
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -11,16 +12,21 @@ logger = Logger('Tudo Fresco API')
 
 def create_app() -> FastAPI:
     logger.log_info('Starting FastAPI application')
+    env = EnvVariableManager()
+    allowed_methods = env.load('ALLOWED_METHODS', '*').string().split(',')
+    allowed_origins = env.load('ALLOWED_ORIGINS', 'http://localhost:5173').string().split(',')
+    allow_credentials = env.load('ALLOW_CREDENTALS', True).boolean()
+    allow_headers = env.load('ALLOW_CREDENTALS_HEADERS', '*').string().split(',')
     app = FastAPI(
         title='Tudo Fresco API',
         version='1.0.0'
     )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_origins=allowed_origins,
+        allow_credentials=allow_credentials,
+        allow_methods=allowed_methods,
+        allow_headers=allow_headers,
     )
     router_builder = ApiRouterBuilder()
     routers = router_builder.build()
@@ -36,5 +42,8 @@ def create_app() -> FastAPI:
     return app
 
 if __name__ == '__main__':
+    env = EnvVariableManager()
+    app_ip = env.load('APP_IP', '0.0.0.0').string()
+    app_port = env.load('APP_PORT', 8777).integer()
     app = create_app()
-    uvicorn.run(app, host='0.0.0.0', port=8777)
+    uvicorn.run(app, host=app_ip, port=app_port)

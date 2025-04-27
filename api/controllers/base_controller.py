@@ -1,4 +1,4 @@
-from typing import Any, Generic, TypeVar, Type, List
+from typing import Generic, TypeVar, Type, List
 from uuid import UUID
 from fastapi import APIRouter, Body, Depends, Query
 from fastapi.responses import JSONResponse
@@ -87,7 +87,7 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
         return get
 
     def _list_handler(self):
-        async def list_entities(page: int = Query(...), per_page: int = Query(10)) -> JSONResponse:
+        async def list_entities(page: int = Query(1), per_page: int = Query(10)) -> JSONResponse:
             self.logger.log_info(f"Listing entities page: {page}, per_page: {per_page}")
             service_response: ServiceResponse = await self.service.list(page=page, per_page=per_page)
             return self.make_response(service_response)

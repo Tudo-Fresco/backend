@@ -34,11 +34,14 @@ class StoreController(BaseController[StoreRequestModel, StoreResponseModel]):
 
     def _list_by_owner_handler(self):
             async def list_by_owner(
+                page: int = Query(...), per_page: int = Query(10),
                 user: UserResponseModel = Depends(self.auth_wrapper.with_access([UserAccess.STORE_OWNER, UserAccess.ADMIN]))
             ) -> JSONResponse:
-                self.logger.log_info(f'Listing the stores for the owner {user.uuid}')
+                self.logger.log_info(f'Listing the stores for the owner {user.uuid}, page: {page}, per page: {per_page}')
                 service_response: ServiceResponse = await self.service.list_by_owner(
-                    owner_uuid=user.uuid
+                    owner_uuid=user.uuid,
+                    page=page,
+                    per_page=per_page
                 )
                 return self.make_response(service_response)
             return list_by_owner

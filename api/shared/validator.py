@@ -72,14 +72,11 @@ class Validator:
         return self
 
     def phone_is_valid(self, message: str = None):
-        phone_regex = r'^\+?(\d{1,3})?(\d{10})$'
-        if not isinstance(self.value, str):
-            self._add_error(message or 'Phone number must be a string.')
-            return self
+        phone_regex = r'^\(\d{2}\)\s(\d{4,5})-\d{4}$'
         if not re.match(phone_regex, self.value):
             self._add_error(message or f'{self.value} is not a valid phone number.')
         return self
-
+        
     def has_minimum_special_characters(self, n: int, message: str = None):
         """
         Validates if the string contains exactly n special characters.
@@ -121,7 +118,7 @@ class Validator:
         if self.current_field_errors:
             message = ''
             for field_name, error in self.current_field_errors:
-                message += f'{field_name}: {error}\n'
+                message += f'{field_name}: {error}\n\n'
             self.current_field_errors = []
             raise ValidationException(message)
         return None

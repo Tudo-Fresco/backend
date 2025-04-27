@@ -23,7 +23,11 @@ class UserService(BaseService[UserRequestModel, UserResponseModel, User]):
     async def create(self, request: UserRequestModel) -> ServiceResponse[UserResponseModel]:
         self.logger.log_info('Creating a new record')
         user: User = User(**request.model_dump())
+        user.validate()
         user.hash_password()
+        service_response = await self.get_by_email(user.email)
+        if service_response.status != HTTPStatus.NOT_FOUND:
+            raise ValidationException(f'O e-mail {user.email} já está cadastrado no sistema')
         await self.repository.create(user)
         response = self.response_model(**user.to_dict())
         return ServiceResponse(status=HTTPStatus.CREATED, message=f'O registro {user.uuid} foi criado com sucesso', payload=response)

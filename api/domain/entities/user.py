@@ -5,6 +5,8 @@ from api.enums.gender_type import GenderType
 from api.enums.user_access import UserAccess
 from datetime import date
 
+from api.shared.validator import Validator
+
 
 class User(BaseEntity):
     
@@ -31,3 +33,14 @@ class User(BaseEntity):
 
     def hash_password(self) -> None:
         self.password: str = PasswordHasher.hash(self.password)
+    
+    def validate(self):
+        validator = Validator()
+        validator.on(self.email, 'E-mail').email_is_valid(f'{self.email} é inválido')
+        validator.on(self.date_of_birth, 'Data de nascimento').is_adult('o usuário deve ser maior de 18 anos')
+        validator.on(self.phone_number, 'Número de telefone').phone_is_valid(f'{self.phone_number} é inválido')
+        validator.on(self.password, 'Senha').has_minimum_special_characters(2, 'deve conter pelo menos 2 caracteres especiais')
+        validator.on(self.password, 'Senha').has_minimum_numbers(2, 'deve conter pelo menos 2 números')
+        validator.on(self.password, 'Senha').character_limit(32, 'deve ser menor do que 32 caracteres')
+        validator.on(self.password, 'Senha').character_minimum(4, 'deve ser maior do que 4 caracteres')
+        validator.check()

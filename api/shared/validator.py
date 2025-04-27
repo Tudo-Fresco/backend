@@ -2,6 +2,7 @@ import re
 from typing import Any
 
 from api.exceptions.validation_exception import ValidationException
+from brazilnum.cnpj import validate_cnpj
 
 
 class Validator:
@@ -36,6 +37,16 @@ class Validator:
             return self
         if not re.match(email_regex, self.value):
             self._add_error(message or f'{self.value} is not a valid email address.')
+        return self
+
+    def cnpj_is_valid(self, message: str = None):
+        if not isinstance(self.value, str):
+            self._add_error(message or 'CNPJ must be a string.')
+            return self
+        if not validate_cnpj(self.value):
+            self._add_error(message or f'{self.value} is not a valid CNPJ.')
+            return self
+
         return self
 
     def with_message(self, message: str):

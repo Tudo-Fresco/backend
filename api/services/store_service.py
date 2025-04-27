@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from typing import List
 from uuid import UUID
+from api.clients.receita_client import ReceitaClient
 from api.controllers.models.store.store_request_model import StoreRequestModel
 from api.controllers.models.store.store_response_model import StoreResponseModel
 from api.domain.entities.store import Store
@@ -61,4 +62,14 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
             status=HTTPStatus.OK,
             message=f'{len(stores)} pontos de venda foram encontrados para o proprietário {owner_uuid}',
             payload=self._convert_many_to_response(stores)
+        )
+    
+    @catch
+    async def fresh_fill(self, cnpj: str) -> ServiceResponse[StoreResponseModel]:
+        receita_client = ReceitaClient()
+        partially_filled_store_response_model = await receita_client.get_by_cnpj(cnpj)
+        return ServiceResponse(
+            status=HTTPStatus.OK,
+            message=f'A empresa {partially_filled_store_response_model.legal_name}, Cnpj: {cnpj} foi encontrada com sucesso na Receita Federal',
+            payload=partially_filled_store_response_model
         )

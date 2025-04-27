@@ -1,4 +1,6 @@
 from http import HTTPStatus
+from typing import List
+from uuid import UUID
 from api.controllers.models.store.store_request_model import StoreRequestModel
 from api.controllers.models.store.store_response_model import StoreResponseModel
 from api.domain.entities.store import Store
@@ -6,10 +8,14 @@ from api.infrastructure.repositories.address_repository import AddressRepository
 from api.infrastructure.repositories.store_repository import StoreRepository
 from api.infrastructure.repositories.user_repository import UserRepository
 from api.services.base_service import BaseService
+from api.services.service_exception_catcher import ServiceExceptionCatcher
 from api.services.service_response import ServiceResponse
 
 
 class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
+
+    catch = ServiceExceptionCatcher('StoreServiceExceptionCatcher')
+
     def __init__(
         self,
         store_repository: StoreRepository,
@@ -19,7 +25,8 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
         super().__init__(store_repository, Store, StoreResponseModel)
         self.user_repo = user_repository
         self.address_repo = address_repository
-
+    
+    @catch
     async def create(self, request: StoreRequestModel) -> ServiceResponse[StoreResponseModel]:
         self.logger.log_info('Creating a Store')
         owner = await self.user_repo.get(request.owner_uuid)
@@ -45,4 +52,13 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
             status=HTTPStatus.CREATED,
             message=f'Loja {created_id} criada com sucesso',
             payload=response
+        )
+    
+    @catch
+    async def list_by_owner(self, owner_uuid: UUID, page: int = 1, per_page: int = 10) -> ServiceResponse[List[StoreResponseModel]]:
+        stores: List[Store] = await self.repository.list_by_owner(owner_uuid, page, per_page)
+        return ServiceResponse(
+            status=HTTPStatus.OK,
+            message=f'{len(stores)} pontos de venda foram encontrados para o proprietário {owner_uuid}',
+            payload=self._convert_many_to_response(stores)
         )

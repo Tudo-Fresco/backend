@@ -30,46 +30,45 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
         self.request_model = request_model
         self.response_model = response_model
         self.auth_wrapper = auth_wrapper
-
         self.router.add_api_route(
-            path="/",
+            path='/',
             endpoint=self._create_handler(),
-            methods=["POST"],
+            methods=['POST'],
             response_model=response_model,
             status_code=201,
-            summary=f"Create {tag}",
+            summary=f'Create {tag}',
             dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
         )
         self.router.add_api_route(
-            path="/{uuid}",
+            path='/by-uuid/{uuid}',
             endpoint=self._get_handler(),
-            methods=["GET"],
+            methods=['GET'],
             response_model=response_model,
-            summary=f"Get {tag} by UUID",
+            summary=f'Get {tag} by UUID',
             dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
         )
         self.router.add_api_route(
-            path="/",
+            path='/list',
             endpoint=self._list_handler(),
-            methods=["GET"],
+            methods=['GET'],
             response_model=List[response_model],
-            summary=f"List {tag}s",
+            summary=f'List {tag}s',
             dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
         )
         self.router.add_api_route(
-            path="/{uuid}",
+            path='/by-uuid/{uuid}',
             endpoint=self._update_handler(),
-            methods=["PUT"],
+            methods=['PUT'],
             response_model=response_model,
-            summary=f"Update {tag} by UUID",
+            summary=f'Update {tag} by UUID',
             dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
         )
         self.router.add_api_route(
-            path="/{uuid}",
+            path='/by-uuid/{uuid}',
             endpoint=self._delete_handler(),
-            methods=["DELETE"],
+            methods=['DELETE'],
             response_model=dict,
-            summary=f"Delete {tag} by UUID",
+            summary=f'Delete {tag} by UUID',
             dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
         )
 

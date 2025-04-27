@@ -47,9 +47,7 @@ class BaseService(IService[REQUEST, RESPONSE], Generic[REQUEST, RESPONSE, T]):
     async def list(self, page: int = 1, per_page: int = 10) -> ServiceResponse[List[RESPONSE]]:
         self.logger.log_info(f'Reading many. Page: {page}, per page: {per_page}')
         entities = await self.repository.list(page, per_page)
-        entities_response = [
-            self.response_model(**entity.to_dict()) for entity in entities
-        ]
+        entities_response = self._convert_many_to_response(entities)
         return ServiceResponse(status=HTTPStatus.OK, message=f'Leu {len(entities_response)} registros com sucesso', payload=entities_response)
 
     @catch
@@ -74,3 +72,11 @@ class BaseService(IService[REQUEST, RESPONSE], Generic[REQUEST, RESPONSE, T]):
     def _raise_not_found_when_none(self, entity: BaseEntity, expected_id: UUID) -> None:
         if not entity:
             raise NotFoundException(f'O registro {expected_id} não foi encontrado')
+
+    def _convert_many_to_response(self, entities: List[BaseEntity]) -> List[RESPONSE]:
+        entities_response = []
+        for entity in entities:
+            entity_dict = entity.to_dict()
+            response = self.response_model(**entity_dict)
+            entities_response.append(response)
+        return entities_response

@@ -25,10 +25,10 @@ class StoreModel(BaseModel):
     preferred_email_contact = Column(String(256), nullable=False)
     store_type = Column(Enum(StoreType), nullable=False)
     opening_date = Column(Date, nullable=False)
-    size = Column(String(20), nullable=False)
-    legal_nature = Column(String(20), nullable=False)
+    size = Column(String(64), nullable=False)
+    legal_nature = Column(String(64), nullable=False)
     cnae_code = Column(String(20), nullable=False)
-    branch_classification = Column(String(20), nullable=False)
+    branch_classification = Column(String(64), nullable=False)
 
     address: Mapped[AddressModel] = relationship('AddressModel')
     owner: Mapped[AddressModel]  = relationship('UserModel')

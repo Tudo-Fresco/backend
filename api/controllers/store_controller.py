@@ -31,6 +31,15 @@ class StoreController(BaseController[StoreRequestModel, StoreResponseModel]):
             summary=f'Listing {self.__class__.__name__} by owner',
             dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
         )
+        self.router.add_api_route(
+            path='/fresh-fill',
+            endpoint=self._fresh_fill_handler(),
+            methods=['GET'],
+            response_model=StoreResponseModel,
+            status_code=200,
+            summary='Fetch partially filled company data by CNPJ',
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
+        )
 
     def _list_by_owner_handler(self):
             async def list_by_owner(
@@ -45,3 +54,11 @@ class StoreController(BaseController[StoreRequestModel, StoreResponseModel]):
                 )
                 return self.make_response(service_response)
             return list_by_owner
+    
+    def _fresh_fill_handler(self):
+        async def fresh_fill(
+            cnpj: str = Query(..., description="CNPJ of the company to fetch")
+        ) -> JSONResponse:
+            service_response: ServiceResponse = await self.service.fresh_fill(cnpj=cnpj)
+            return self.make_response(service_response)
+        return fresh_fill

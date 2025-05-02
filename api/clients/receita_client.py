@@ -1,6 +1,7 @@
 from api.controllers.models.store.store_response_model import StoreResponseModel
 from api.controllers.models.address.address_response_model import AddressResponseModel
 from api.exceptions.external_service_exception import ExternalServiceException
+from api.exceptions.not_found_exception import NotFoundException
 from api.shared.validator import Validator
 from api.shared.logger import Logger
 import http.client
@@ -19,6 +20,8 @@ class ReceitaClient:
     async def get_by_cnpj(self, cnpj: str) -> StoreResponseModel:
         self.validator.on(cnpj, 'CNPJ').cnpj_is_valid(f'O valor informado: {cnpj} não é um CNPJ válido').check()
         data = await self._fetch_data_from_receita(cnpj)
+        if not data:
+            raise NotFoundException(f'O CNPJ {cnpj} é inválido pois não foi encontrado na base de dados da Receita Federal.')
         address = AddressResponseModel(
             zip_code=data.get('cep', None),
             street_address=data.get('logradouro', None),
@@ -72,5 +75,8 @@ class ReceitaClient:
                 raise ExternalServiceException(f"Error in API response: {error_message}")
             self.logger.log_info(f"Cnpj {cnpj} found.")
             return data
+        except Exception as ex:
+            self.logger.log_error(f'Error while fecthing the cnpj: {cnpj}. Details: {ex}')
+            return {}
         finally:
             conn.close()

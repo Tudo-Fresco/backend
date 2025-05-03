@@ -1,9 +1,8 @@
-from datetime import date
-import re
-from typing import Any
-
 from api.exceptions.validation_exception import ValidationException
 from brazilnum.cnpj import validate_cnpj
+from datetime import date
+from typing import Any
+import re
 
 
 class Validator:
@@ -106,6 +105,16 @@ class Validator:
         digit_count = len(digits)
         if digit_count < n:
             self._add_error(message or f'Value must contain exactly {n} digit(s).')
+        return self
+
+    def cep_is_valid(self, message: str = None):
+        """
+        Validates if the value is a valid Brazilian ZIP code (CEP).
+        Accepts formats like '12345-678' or '12345678'.
+        """
+        cep_regex = r'^\d{5}-?\d{3}$'
+        if not isinstance(self.value, str) or not re.match(cep_regex, self.value):
+            self._add_error(message or f'{self.value} não é um CEP válido.')
         return self
 
     def with_message(self, message: str):

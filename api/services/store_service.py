@@ -5,6 +5,7 @@ from api.clients.receita_client import ReceitaClient
 from api.controllers.models.store.store_request_model import StoreRequestModel
 from api.controllers.models.store.store_response_model import StoreResponseModel
 from api.domain.entities.store import Store
+from api.enums.user_access import UserAccess
 from api.infrastructure.repositories.address_repository import AddressRepository
 from api.infrastructure.repositories.store_repository import StoreRepository
 from api.infrastructure.repositories.user_repository import UserRepository
@@ -61,11 +62,14 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
         )
     
     @catch
-    async def list_by_owner(self, owner_uuid: UUID, page: int = 1, per_page: int = 10) -> ServiceResponse[List[StoreResponseModel]]:
-        stores: List[Store] = await self.repository.list_by_owner(owner_uuid, page, per_page)
+    async def list_by_user(self, user_uuid: UUID, page: int = 1, per_page: int = 10) -> ServiceResponse[List[StoreResponseModel]]:
+        user = await self.user_repo.get(user_uuid)
+        stores: List[Store] = []
+        if user.user_access == UserAccess.ADMIN or user.user_access == UserAccess.STORE_OWNER:
+            stores = await self.repository.list_by_owner(user_uuid, page, per_page)
         return ServiceResponse(
             status=HTTPStatus.OK,
-            message=f'{len(stores)} pontos de venda foram encontrados para o proprietário {owner_uuid}',
+            message=f'{len(stores)} pontos de venda foram encontrados relacionados ao usuário {user_uuid}',
             payload=self._convert_many_to_response(stores)
         )
     

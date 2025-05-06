@@ -23,8 +23,8 @@ class StoreController(BaseController[StoreRequestModel, StoreResponseModel]):
             auth_wrapper=auth_wrapper
         )
         self.router.add_api_route(
-            path='/list-by-owner',
-            endpoint=self._list_by_owner_handler(),
+            path='/list-by-user',
+            endpoint=self._list_by_user_handler(),
             methods=['GET'],
             response_model=List[StoreResponseModel],
             status_code=200,
@@ -55,19 +55,19 @@ class StoreController(BaseController[StoreRequestModel, StoreResponseModel]):
             return self.make_response(service_response)
         return create
 
-    def _list_by_owner_handler(self):
-            async def list_by_owner(
+    def _list_by_user_handler(self):
+            async def list_by_user(
                 page: int = Query(...), per_page: int = Query(10),
                 user: UserResponseModel = Depends(self.auth_wrapper.with_access([UserAccess.STORE_OWNER, UserAccess.ADMIN]))
             ) -> JSONResponse:
-                self.logger.log_info(f'Listing the stores for the owner {user.uuid}, page: {page}, per page: {per_page}')
-                service_response: ServiceResponse = await self.service.list_by_owner(
-                    owner_uuid=user.uuid,
+                self.logger.log_info(f'Listing the stores for the user {user.uuid}, page: {page}, per page: {per_page}')
+                service_response: ServiceResponse = await self.service.list_by_user(
+                    user_uuid=user.uuid,
                     page=page,
                     per_page=per_page
                 )
                 return self.make_response(service_response)
-            return list_by_owner
+            return list_by_user
     
     def _fresh_fill_handler(self):
         async def fresh_fill(

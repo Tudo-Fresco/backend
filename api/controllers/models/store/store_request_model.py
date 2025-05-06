@@ -1,6 +1,6 @@
 from datetime import date
 from uuid import UUID
-from typing import List
+from typing import List, Optional
 from pydantic import Field
 from api.controllers.models.base_request_model import BaseRequestModel
 from api.enums.store_type import StoreType
@@ -14,9 +14,9 @@ class StoreRequestModel(BaseRequestModel):
     preferred_phone_contact: str = Field(..., example='+55 11 98888-7777', description='Telefone preferencial de contato')
     legal_email_contact: str = Field(..., example='juridico@tudofresco.com.br', description='E-mail jurídico da loja')
     preferred_email_contact: str = Field(..., example='contato@tudofresco.com.br', description='E-mail preferencial da loja')
-    images: List[str] = Field(default_factory=list, example=['https://image1.com', 'https://image2.com'], description='Lista de URLs de imagens da loja')
-    reputation: float = Field(0.0, example=4.5, description='Reputação da loja (de 0 a 5)')
-    owner_uuid: UUID = Field(..., example='6a79c74a-5016-4f6f-ae9c-83d3c6a30851', description='UUID do proprietário da loja')
+    images: Optional[List[str]] = Field([], example=['https://image1.com', 'https://image2.com'], description='Lista de URLs de imagens da loja')
+    reputation: Optional[float] = Field(0.0, example=4.5, description='Reputação da loja (de 0 a 5)')
+    owner_uuid: Optional[UUID] = Field(None, example='6a79c74a-5016-4f6f-ae9c-83d3c6a30851', description='UUID do proprietário da loja')
     address_uuid: UUID = Field(..., example='3ec37df2-2e6b-4b4a-9f25-60fd20ec0fd8', description='UUID do endereço da loja')
     store_type: StoreType = Field(..., example=StoreType.SUPPLIER.value)
     opening_date: date = Field(..., example='2000-01-01')

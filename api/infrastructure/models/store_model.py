@@ -31,7 +31,7 @@ class StoreModel(BaseModel):
     branch_classification = Column(String(64), nullable=False)
 
     address: Mapped[AddressModel] = relationship('AddressModel')
-    owner: Mapped[AddressModel]  = relationship('UserModel')
+    owner: Mapped[UserModel]  = relationship('UserModel')
 
     def _from_entity(self, entity: Store) -> None:
         '''Convert a Store entity to the StoreModel.'''
@@ -46,10 +46,6 @@ class StoreModel(BaseModel):
         self.preferred_phone_contact = entity.preferred_phone_contact
         self.legal_email_contact = entity.legal_email_contact
         self.preferred_email_contact = entity.preferred_email_contact
-        self.address = AddressModel()
-        self.address.from_entity(entity.address)
-        self.owner = UserModel()
-        self.owner.from_entity(entity.owner)
         self.store_type = entity.store_type
         self.opening_date = entity.opening_date
         self.size = entity.size

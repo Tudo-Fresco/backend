@@ -36,16 +36,21 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
         self._raise_not_found_when_none(address, request.address_uuid)
         store = Store(
             cnpj=request.cnpj,
+            address=address,
+            reputation=0,
             trade_name=request.trade_name,
             legal_name=request.legal_name,
+            owner=owner,
             legal_phone_contact=request.legal_phone_contact,
             preferred_phone_contact=request.preferred_phone_contact,
             legal_email_contact=request.legal_email_contact,
             preferred_email_contact=request.preferred_email_contact,
-            images=request.images,
-            reputation=request.reputation,
-            owner=owner,
-            address=address
+            store_type=request.store_type,
+            opening_date=request.opening_date,
+            size=request.size,
+            legal_nature=request.legal_nature,
+            cnae_code=request.cnae_code,
+            branch_classification=request.branch_classification
         )
         created_id = await self.repository.create(store)
         response = StoreResponseModel(**store.to_dict())

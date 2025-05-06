@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import Depends, Query
+from fastapi import Body, Depends, Query
 from fastapi.responses import JSONResponse
 from api.controllers.auth_wrapper import AuthWrapper
 from api.controllers.models.store.store_request_model import StoreRequestModel
@@ -40,6 +40,20 @@ class StoreController(BaseController[StoreRequestModel, StoreResponseModel]):
             summary='Fetch partially filled company data by CNPJ',
             dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
         )
+
+
+    def _create_handler(self):
+        async def create(
+                model: StoreRequestModel = Body(...), 
+                user: UserResponseModel = Depends(self.auth_wrapper.with_access([UserAccess.STORE_OWNER, UserAccess.ADMIN]))
+            ) -> JSONResponse:
+            self.logger.log_info("Creating a new store")
+            if not model.owner_uuid:
+                 model.owner_uuid = user.uuid
+                 self.logger.log_info(f'The owner uuid was not informed for this store, assuming the owner is the caller {user.uuid}')
+            service_response: ServiceResponse = await self.service.create(request=model)
+            return self.make_response(service_response)
+        return create
 
     def _list_by_owner_handler(self):
             async def list_by_owner(

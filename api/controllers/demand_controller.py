@@ -1,8 +1,15 @@
+from typing import List
+from uuid import UUID
+from fastapi import Depends, Query
+from fastapi.responses import JSONResponse
 from api.controllers.auth_wrapper import AuthWrapper
 from api.controllers.models.demand.demand_request_model import DemandRequestModel
 from api.controllers.models.demand.demand_response_mode import DemandResponseModel
+from api.controllers.models.user.user_response_model import UserResponseModel
+from api.enums.user_access import UserAccess
 from api.services.i_service import IService
 from api.controllers.base_controller import BaseController
+from api.services.service_response import ServiceResponse
 
 
 class DemandController(BaseController[DemandRequestModel, DemandResponseModel]):
@@ -16,3 +23,27 @@ class DemandController(BaseController[DemandRequestModel, DemandResponseModel]):
             tag=__class__.__name__,
             auth_wrapper=auth_wrapper
         )
+        self.router.add_api_route(
+            path='/list-by-store',
+            endpoint=self._list_by_store_handler(),
+            methods=['GET'],
+            response_model=List[DemandResponseModel],
+            status_code=200,
+            summary=f'Listing {self.__class__.__name__} by store',
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
+        )
+    
+    def _list_by_store_handler(self):
+            async def list_by_user(
+                store_uuid: UUID, page: int = Query(1), per_page: int = Query(10),
+                user: UserResponseModel = Depends(self.auth_wrapper.with_access([UserAccess.STORE_OWNER, UserAccess.ADMIN]))
+            ) -> JSONResponse:
+                self.logger.log_info(f'Listing the demands for the store {store_uuid}, page: {page}, per page: {per_page}')
+                service_response: ServiceResponse = await self.service.list_by_store(
+                    user_uuid=user.uuid,
+                    store_uuid=store_uuid,
+                    page=page,
+                    per_page=per_page
+                )
+                return self.make_response(service_response)
+            return list_by_user

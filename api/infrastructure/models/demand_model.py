@@ -33,14 +33,7 @@ class DemandModel(BaseModel):
         self.needed_count = entity.needed_count
         self.description = entity.description
         self.deadline = entity.deadline
-        self.store = StoreModel()
-        self.store.from_entity(entity.store)
-        self.product = ProductModel()
-        self.product.from_entity(entity.product)
-        self.responsible = UserModel()
-        self.responsible.from_entity(entity.responsible)
         self.status = entity.status
-
 
     def _to_entity(self) -> Demand:
         '''Convert the DemandModel to a Demand entity.'''

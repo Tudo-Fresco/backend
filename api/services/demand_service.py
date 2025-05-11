@@ -1,5 +1,6 @@
 from typing import List
 from uuid import UUID
+from api.enums.demand_status import DemandStatus
 from api.exceptions.validation_exception import ValidationException
 from api.infrastructure.repositories.demand_repository import DemandRepository
 from api.infrastructure.repositories.product_repository import ProductRepository
@@ -30,8 +31,11 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
         self.product_repo = product_repository
         self.user_repo = user_repository
 
-    async def create(self, request: DemandRequestModel) -> ServiceResponse[DemandResponseModel]:
+    async def create(self, user_uuid: UUID, request: DemandRequestModel) -> ServiceResponse[DemandResponseModel]:
         self.logger.log_info('Creating a Demand')
+        if not request.responsible_uuid:
+            request.responsible_uuid = user_uuid
+            self.logger.log_warning(f'No responsible user was informed for this demand, the responsible will be the creator: {user_uuid}')
         store = await self.store_repo.get(request.store_uuid)
         self._raise_not_found_when_none(store, request.store_uuid)
         product = await self.product_repo.get(request.product_uuid)
@@ -45,6 +49,7 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
             needed_count=request.needed_count,
             description=request.description,
             deadline=request.deadline,
+            status=DemandStatus.OPENED
         )
         created_id = await self.repository.create(demand)
         response = DemandResponseModel(**demand.to_dict())
@@ -55,7 +60,7 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
         )
     
     @catch
-    async def list_by_store(self, user_uuid: UUID, store_uuid: UUID, page: int = 1, per_page: int = 10) -> ServiceResponse[List[DemandResponseModel]]:
+    async def list_by_store(self, user_uuid: UUID, store_uuid: UUID, status: DemandStatus, page: int = 1, per_page: int = 10) -> ServiceResponse[List[DemandResponseModel]]:
         stores = await self.store_repo.list_by_owner(user_uuid)
         found_store = None 
         for store in stores:
@@ -65,9 +70,9 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
         if not found_store:
             raise ValidationException('O usuário não possui acesso a loja requerida')
         demands: List[Demand] = []
-        demands = await self.repository.list_by_store(store_uuid, page, per_page)
+        demands = await self.repository.list_by_store(store_uuid, status, page, per_page)
         return ServiceResponse(
             status=HTTPStatus.OK,
-            message=f'{len(demands)} demandas foram encontrados relacionados à loja {store_uuid}',
+            message=f'{len(demands)} demandas com o status {status.value} foram encontrados para a loja selecionada',
             payload=self._convert_many_to_response(demands)
         )

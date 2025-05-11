@@ -1,7 +1,9 @@
 from typing import List
 from uuid import UUID
 from api.domain.entities.demand import Demand
+from api.enums.demand_status import DemandStatus
 from api.infrastructure.models.demand_model import DemandModel
+from api.infrastructure.models.store_model import StoreModel
 from api.infrastructure.repositories.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -12,17 +14,19 @@ class DemandRepository(BaseRepository[Demand, DemandModel]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, DemandModel)
 
-    async def list_by_store(self, store_uuid: UUID, page: int = 1, per_page: int = 10) -> List[Demand]:
-        self.logger.log_debug(f'Listing demands by the store: {store_uuid} (page {page}, per_page {per_page})')
+    async def list_by_store(self, store_uuid: UUID, status: DemandStatus, page: int = 1, per_page: int = 10) -> List[Demand]:
+        self.logger.log_debug(f'Listing demands by the store: {store_uuid} and status {status.value} (page {page}, per_page {per_page})')
         if page < 1:
             page = 1
         query = (
             select(self.model_class)
             .filter_by(active=True)
             .filter(self.model_class.store_uuid == store_uuid)
+            .filter(self.model_class.status == status)
             .options(
-                joinedload(DemandModel.store),
-                joinedload(DemandModel.product)
+                joinedload(DemandModel.store).joinedload(StoreModel.address),
+                joinedload(DemandModel.product),
+                joinedload(DemandModel.responsible)
             )
             .offset((page - 1) * per_page)
             .limit(per_page)

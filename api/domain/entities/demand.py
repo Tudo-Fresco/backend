@@ -6,7 +6,6 @@ from api.domain.entities.user import User
 from datetime import datetime
 
 
-
 class Demand(BaseEntity):
 
     def __init__(self, store: Store,

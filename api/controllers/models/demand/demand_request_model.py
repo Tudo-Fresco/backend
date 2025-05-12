@@ -15,4 +15,5 @@ class DemandRequestModel(BaseRequestModel):
     description: str = Field(..., example='50 packs of organic rice')
     deadline: datetime = Field(..., example='2025-10-01T12:00:00')
     status: DemandStatus = Field(..., example=DemandStatus.OPENED.value)
+    minimum_count: int = Field(default=1, example=777)
 

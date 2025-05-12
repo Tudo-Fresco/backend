@@ -20,6 +20,7 @@ class DemandModel(BaseModel):
     description = Column(String(512), nullable=False)
     deadline = Column(DateTime(timezone=True), nullable=False)
     status = Column(Enum(DemandStatus), nullable=False, default=DemandStatus.OPENED)
+    minimum_count = Column(Integer, nullable=False, default=1)
 
     store: Mapped[StoreModel] = relationship('StoreModel')
     product: Mapped[ProductModel] = relationship('ProductModel')
@@ -34,6 +35,7 @@ class DemandModel(BaseModel):
         self.description = entity.description
         self.deadline = entity.deadline
         self.status = entity.status
+        self.minimum_count = entity.minimum_count
 
     def _to_entity(self) -> Demand:
         '''Convert the DemandModel to a Demand entity.'''
@@ -44,5 +46,6 @@ class DemandModel(BaseModel):
             needed_count=self.needed_count,
             description=self.description,
             deadline=self.deadline,
-            status=self.status
+            status=self.status,
+            minimum_count = self.minimum_count 
         )

@@ -15,6 +15,7 @@ class Demand(BaseEntity):
                 description: str,
                 deadline: datetime,
                 status: DemandStatus,
+                minimum_count: int,
                 **kwargs):
         super().__init__(**kwargs)
         self.store: Store = store
@@ -24,3 +25,4 @@ class Demand(BaseEntity):
         self.description: str = description
         self.deadline: datetime = deadline
         self.status: DemandStatus = status
+        self.minimum_count: int = minimum_count

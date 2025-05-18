@@ -18,6 +18,7 @@ class UserService(BaseService[UserRequestModel, UserResponseModel, User]):
 
     def __init__(self, user_repository: UserRepository):
         super().__init__(user_repository, User, UserResponseModel)
+        self.bucket_client = GoogleBucketsClient(BucketName.USER_PROFILE)
 
     @catch
     async def create(self, request: UserRequestModel) -> ServiceResponse[UserResponseModel]:
@@ -48,8 +49,7 @@ class UserService(BaseService[UserRequestModel, UserResponseModel, User]):
     async def upload_profile_picture(self, user_uuid: str, image_bytes: bytes, file_name: str) -> ServiceResponse[UserResponseModel]:
         self.logger.log_info(f'Uploading profile picture for user {user_uuid}')
         user: User = await self.repository.get(user_uuid)
-        bucket_client = GoogleBucketsClient(BucketName.USER_PROFILE)
-        new_blob_name = await bucket_client.update_image(
+        new_blob_name = await self.bucket_client.update_image(
             new_image_bytes=image_bytes,
             original_filename=file_name,
             old_blob_name=user.profile_picture
@@ -61,4 +61,15 @@ class UserService(BaseService[UserRequestModel, UserResponseModel, User]):
             status=HTTPStatus.OK,
             message='Foto de perfil atualizada com sucesso',
             payload=response
+        )
+    
+    @catch
+    async def get_profile_image_signed_url(self, user_uuid: str) -> ServiceResponse[str]:
+        self.logger.log_info(f'Getting signed url profile picture for user {user_uuid}')
+        user: User = await self.repository.get(user_uuid)
+        signed_url: str = await self.bucket_client.read_image(user.profile_picture)
+        return ServiceResponse(
+            status=HTTPStatus.OK,
+            message='The URL was signed successfully',
+            payload=signed_url
         )

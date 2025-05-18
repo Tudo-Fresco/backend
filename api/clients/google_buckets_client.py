@@ -17,6 +17,7 @@ class GoogleBucketsClient:
         self.logger = Logger('GoogleBucketsClient')
         self.env = EnvVariableManager()
         storage_account_file_path: str = self.env.load('STORAGE_ACCOUNT_FILE_PATH', 'auth/tudo-fresco-backend.json').string()
+        self.signed_url_expiration_seconds: str = self.env.load('SIGNED_BUCKET_URL_EXPIRATION_SECONDS', 10800).integer()
         credentials = service_account.Credentials.from_service_account_file(storage_account_file_path)
         self.client = storage.Client(credentials=credentials)
         self.logger.log_info(f'Using the bucket {bucket_name.value}')
@@ -36,6 +37,7 @@ class GoogleBucketsClient:
         blob_name = self._generate_unique_filename(original_filename, self.image_directory)
         blob = self.bucket.blob(blob_name)
         await asyncio.to_thread(blob.upload_from_string, image_bytes, content_type=self._get_content_type(original_filename))
+        self.logger.log_debug(f'Image saved with blob name: {blob_name}')
         return blob_name
 
     async def delete_image(self, blob_name: str) -> None:
@@ -49,11 +51,13 @@ class GoogleBucketsClient:
             await self.delete_image(old_blob_name)
         return await self.save_image(new_image_bytes, original_filename)
 
-    async def read_image(self, blob_name: str, expires_in_seconds: int = 900) -> str:
+    async def read_image(self, blob_name: str) -> str:
+        if not blob_name:
+            return ''
         blob = self.bucket.blob(blob_name)
         url = await asyncio.to_thread(blob.generate_signed_url, 
                                       version='v4', 
-                                      expiration=timedelta(seconds=expires_in_seconds),
+                                      expiration=timedelta(seconds=self.signed_url_expiration_seconds),
                                       method='GET')
         return url
 

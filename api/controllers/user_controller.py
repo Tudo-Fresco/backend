@@ -34,8 +34,15 @@ class UserController(BaseController[UserRequestModel, UserResponseModel]):
             methods=['POST'],
             response_model=UserResponseModel,
             status_code=200,
-            summary=f'Upload Profile Picture for {self.__class__.__name__}',
-            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
+            summary=f'Upload Profile Picture for {self.__class__.__name__}'
+        )
+        self.router.add_api_route(
+            path='/signed-profile-picture',
+            endpoint=self._get_signed_profile_image_url_handler(),
+            methods=['GET'],
+            response_model=UserResponseModel,
+            status_code=200,
+            summary='Returns a signed URL to display the profile picture'
         )
 
     def _sign_up_handler(self):
@@ -61,3 +68,10 @@ class UserController(BaseController[UserRequestModel, UserResponseModel]):
                 )
                 return self.make_response(service_response)
             return upload_profile_picture
+    
+    def _get_signed_profile_image_url_handler(self):
+        async def get_signed_profile_image_url(user: UserResponseModel = Depends(self.auth_wrapper.with_access([UserAccess.ANY]))) -> JSONResponse:
+            self.logger.log_info(f'Signing the profile image url for the user {user.uuid}')
+            service_response: ServiceResponse = await self.service.get_profile_image_signed_url(user.uuid)
+            return self.make_response(service_response)
+        return get_signed_profile_image_url

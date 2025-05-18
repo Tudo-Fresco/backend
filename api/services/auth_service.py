@@ -60,11 +60,11 @@ class AuthService:
         user: UserResponseModel = await self._get_user_from_token(token)
         self.validator.on(user, 'Usuário').not_empty('Não econtrado')
         self.validator.check()
-        if user.user_access not in required_access:
+        if (required_access[0] != UserAccess.ANY) and (user.user_access not in required_access):
             self.logger.log_info('The user is not authorized')
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f'O usuário "{user.email}" não possui o privilégio para executar esta ação'
+                detail=f'O usuário "{user.email}" não possui o privilégio necessário para executar esta ação'
             )
         self.logger.log_debug('The user is authorized')
         return ServiceResponse(status=status.HTTP_200_OK, message=f'O usuário {user.email} está autenticado', payload=user)

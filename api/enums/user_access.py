@@ -6,3 +6,4 @@ class UserAccess(Enum):
     STORE_OWNER = 'STORE_OWNER'
     EMPLOYEE = 'EMPLOYEE'
     GUEST = 'GUEST'
+    ANY = 'ANY'

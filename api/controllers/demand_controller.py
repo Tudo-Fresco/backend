@@ -30,8 +30,7 @@ class DemandController(BaseController[DemandRequestModel, DemandResponseModel]):
             methods=['GET'],
             response_model=List[DemandResponseModel],
             status_code=200,
-            summary=f'Listing {self.__class__.__name__} by store',
-            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
+            summary=f'Listing {self.__class__.__name__} by store'
         )
     
     def _create_handler(self):

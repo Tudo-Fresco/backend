@@ -28,8 +28,7 @@ class StoreController(BaseController[StoreRequestModel, StoreResponseModel]):
             methods=['GET'],
             response_model=List[StoreResponseModel],
             status_code=200,
-            summary=f'Listing {self.__class__.__name__} by owner',
-            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
+            summary=f'Listing {self.__class__.__name__} by owner'
         )
         self.router.add_api_route(
             path='/fresh-fill',
@@ -37,8 +36,7 @@ class StoreController(BaseController[StoreRequestModel, StoreResponseModel]):
             methods=['GET'],
             response_model=StoreResponseModel,
             status_code=200,
-            summary='Fetch partially filled company data by CNPJ',
-            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
+            summary='Fetch partially filled company data by CNPJ'
         )
 
 

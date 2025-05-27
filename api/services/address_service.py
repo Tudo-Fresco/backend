@@ -19,6 +19,17 @@ class AddressService(BaseService[AddressRequestModel, AddressResponseModel, Addr
     def __init__(self, address_repository: AddressRepository):
         super().__init__(address_repository, Address, AddressResponseModel)
 
+    async def create(self, request: AddressResponseModel) -> ServiceResponse[AddressResponseModel]:
+        address = Address(**request.model_dump())
+        address.validate()
+        await self.repository.create(address)
+        await self._update_coordinates(address)
+        return ServiceResponse(
+            status=HTTPStatus.CREATED,
+            message=f'O endereço {address.uuid} foi criado com sucesso',
+            payload=AddressResponseModel(**address.to_dict())
+        )
+
     @catch
     async def fresh_fill(self, cep: str) -> ServiceResponse[AddressResponseModel]:
         correios_client = CorreiosClient()
@@ -41,3 +52,23 @@ class AddressService(BaseService[AddressRequestModel, AddressResponseModel, Addr
             message=message,
             payload=CoordinatesResponseModel(latitude=coordinates[0], longitude=coordinates[1])
         )
+    
+    @catch
+    async def update(self, uuid: UUID, request: AddressRequestModel) -> ServiceResponse[AddressResponseModel]:
+        address = await self.repository.get(uuid)
+        address.update(**request.model_dump())
+        address.validate()
+        await self._update_coordinates(address)
+        await self.repository.update(address)
+        return ServiceResponse(
+            status=HTTPStatus.OK,
+            message=f'O endereço {address.uuid} foi atualizado com sucesso',
+            payload=AddressResponseModel(**address.to_dict())
+        )
+        
+    async def _update_coordinates(self, address: Address) -> None:
+        service_response = await self.get_approximate_coordinates(address.uuid)
+        if service_response.status == HTTPStatus.OK:
+            coordinates = service_response.payload
+            address.update(latitude=coordinates.longitude, longitude=coordinates.latitude)
+            await self.repository.update(address)

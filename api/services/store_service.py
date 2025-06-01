@@ -90,7 +90,13 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
         store = await self.repository.get(obj_id)
         if not (user.user_access == UserAccess.ADMIN or user.uuid == store.owner):
             raise ValidationException(f'O usuário {user.email} não possui o privilégio necessário para alterar os dados uma empresa')
-        store.update(**request.model_dump())
+        updatable_values = {
+            'address_uuid': request.address_uuid,
+            'preferred_phone_contact': request.preferred_phone_contact,
+            'preferred_email_contact': request.preferred_email_contact,
+            'images': request.images
+        }
+        store.update(**updatable_values)
         store.validate()
         await self.repository.update(store)
         return ServiceResponse(

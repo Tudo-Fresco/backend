@@ -88,9 +88,8 @@ class StoreController(BaseController[StoreRequestModel, StoreResponseModel]):
     def _delete_handler(self):
         async def delete(
                 uuid: UUID,
-                model: StoreRequestModel = Body(...),
                 user: UserResponseModel = Depends(self.auth_wrapper.with_access([UserAccess.STORE_OWNER, UserAccess.ADMIN]))) -> JSONResponse:
             self.logger.log_info(f"Updating store {uuid}")
-            service_response: ServiceResponse = await self.service.delete(obj_id=uuid, request=model, user=user)
+            service_response: ServiceResponse = await self.service.delete(obj_id=uuid, user=user)
             return self.make_response(service_response)
         return delete

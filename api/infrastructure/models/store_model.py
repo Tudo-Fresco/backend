@@ -14,7 +14,7 @@ class StoreModel(BaseModel):
 
     images = Column(ARRAY(String), nullable=False, default=[])
     cnpj = Column(String(18), nullable=False, unique=False)
-    address_uuid = Column(UUID(as_uuid=True), ForeignKey('address.uuid'), nullable=False)
+    address_uuid = Column(UUID(as_uuid=True), ForeignKey('address.uuid', ondelete='CASCADE'), nullable=False)
     reputation = Column(Float, nullable=False)
     trade_name = Column(String(256), nullable=False)
     legal_name = Column(String(256), nullable=False)

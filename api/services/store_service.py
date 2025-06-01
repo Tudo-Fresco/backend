@@ -5,6 +5,7 @@ from api.clients.receita_client import ReceitaClient
 from api.controllers.models.store.store_request_model import StoreRequestModel
 from api.controllers.models.store.store_response_model import StoreResponseModel
 from api.controllers.models.user.user_response_model import UserResponseModel
+from api.domain.entities.address import Address
 from api.domain.entities.store import Store
 from api.enums.user_access import UserAccess
 from api.exceptions.validation_exception import ValidationException
@@ -99,9 +100,13 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
             'preferred_email_contact': request.preferred_email_contact,
             'images': request.images
         }
+        address_changed: bool = request.address_uuid != store.address.uuid
+        old_address: UUID = store.address
         store.update(**updatable_values)
         store.validate()
         await self.repository.update(store)
+        if address_changed:
+            await self._deactivate_address(old_address)
         return ServiceResponse(
             status=HTTPStatus.OK,
             message=f'A empresa {store.legal_name} foi atualizada com sucesso',
@@ -115,7 +120,14 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
             raise ValidationException(f'O usuário {user.email} não possui o privilégio necessário para excluir uma empresa')
         store.deactivate()
         await self.repository.update(store)
+        await self._deactivate_address(store.address)
         return ServiceResponse(
             status=HTTPStatus.OK,
             message=f'A empresa {store.legal_name} foi excluída com sucesso'
         )
+    
+    async def _deactivate_address(self, address: Address) -> None:
+        self.logger.log_info(f'Deactivating the address {address.uuid}')
+        address.deactivate()
+        await self.address_repo.update(address)
+        self.logger.log_info(f'Address {address.uuid} was deactivated')

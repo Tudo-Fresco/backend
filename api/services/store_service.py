@@ -33,6 +33,9 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
     @catch
     async def create(self, request: StoreRequestModel) -> ServiceResponse[StoreResponseModel]:
         self.logger.log_info('Creating a Store')
+        store: Store = await self.repository.get_by_cnpj(request.cnpj)
+        if store:
+            raise ValidationException(message=f'A loja {request.cnpj} já possui um cadastro no sistema, não é possível cadastrá-la novamente.')
         owner = await self.user_repo.get(request.owner_uuid)
         self._raise_not_found_when_none(owner, request.owner_uuid)
         address = await self.address_repo.get(request.address_uuid)

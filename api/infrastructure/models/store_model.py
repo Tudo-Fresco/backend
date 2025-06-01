@@ -13,7 +13,7 @@ class StoreModel(BaseModel):
     __tablename__ = 'store'
 
     images = Column(ARRAY(String), nullable=False, default=[])
-    cnpj = Column(String(18), nullable=False, unique=True)
+    cnpj = Column(String(18), nullable=False, unique=False)
     address_uuid = Column(UUID(as_uuid=True), ForeignKey('address.uuid'), nullable=False)
     reputation = Column(Float, nullable=False)
     trade_name = Column(String(256), nullable=False)

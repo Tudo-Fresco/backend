@@ -4,8 +4,10 @@ from uuid import UUID
 from api.clients.receita_client import ReceitaClient
 from api.controllers.models.store.store_request_model import StoreRequestModel
 from api.controllers.models.store.store_response_model import StoreResponseModel
+from api.controllers.models.user.user_response_model import UserResponseModel
 from api.domain.entities.store import Store
 from api.enums.user_access import UserAccess
+from api.exceptions.validation_exception import ValidationException
 from api.infrastructure.repositories.address_repository import AddressRepository
 from api.infrastructure.repositories.store_repository import StoreRepository
 from api.infrastructure.repositories.user_repository import UserRepository
@@ -81,4 +83,30 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
             status=HTTPStatus.OK,
             message=f'A empresa {partially_filled_store_response_model.legal_name}, Cnpj: {cnpj} foi encontrada com sucesso na Receita Federal',
             payload=partially_filled_store_response_model
+        )
+    
+    @catch
+    async def update(self, obj_id: UUID, request: StoreRequestModel, user: UserResponseModel) -> ServiceResponse[StoreResponseModel]:
+        store = await self.repository.get(obj_id)
+        if not (user.user_access == UserAccess.ADMIN or user.uuid == store.owner):
+            raise ValidationException(f'O usuário {user.email} não possui o privilégio necessário para alterar os dados uma empresa')
+        store.update(**request.model_dump())
+        store.validate()
+        await self.repository.update(store)
+        return ServiceResponse(
+            status=HTTPStatus.OK,
+            message=f'A empresa {store.legal_name} foi atualizada com sucesso',
+            payload=StoreResponseModel(store.to_dict())
+        )
+    
+    @catch
+    async def delete(self, obj_id: UUID, user: UserResponseModel) -> ServiceResponse[None]:
+        store = await self.repository.get(obj_id)
+        if not (user.user_access == UserAccess.ADMIN or user.uuid == store.owner):
+            raise ValidationException(f'O usuário {user.email} não possui o privilégio necessário para excluir uma empresa')
+        store.deactivate()
+        await self.repository.update(store)
+        return ServiceResponse(
+            status=HTTPStatus.OK,
+            message=f'A empresa {store.legal_name} foi excluída com sucesso'
         )

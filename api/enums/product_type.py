@@ -20,3 +20,5 @@ class ProductType(Enum):
     FRUIT = 'FRUIT'
     EGG = 'EGG'
     DAIRY = 'DAIRY'
+    ANY = 'ANY'
+    

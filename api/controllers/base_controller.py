@@ -37,7 +37,7 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
             response_model=response_model,
             status_code=201,
             summary=f'Create {tag}',
-            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
         )
         self.router.add_api_route(
             path='/by-uuid/{uuid}',
@@ -45,7 +45,7 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
             methods=['GET'],
             response_model=response_model,
             summary=f'Get {tag} by UUID',
-            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
         )
         self.router.add_api_route(
             path='/list',
@@ -53,7 +53,7 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
             methods=['GET'],
             response_model=List[response_model],
             summary=f'List {tag}s',
-            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
         )
         self.router.add_api_route(
             path='/by-uuid/{uuid}',
@@ -61,7 +61,7 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
             methods=['PUT'],
             response_model=response_model,
             summary=f'Update {tag} by UUID',
-            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
         )
         self.router.add_api_route(
             path='/by-uuid/{uuid}',
@@ -69,7 +69,7 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
             methods=['DELETE'],
             response_model=dict,
             summary=f'Delete {tag} by UUID',
-            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN]))]
+            dependencies=[Depends(self.auth_wrapper.with_access([UserAccess.ADMIN, UserAccess.STORE_OWNER]))]
         )
 
     def _create_handler(self):

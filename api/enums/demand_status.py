@@ -6,4 +6,3 @@ class DemandStatus(Enum):
     CLOSED = 'CLOSED'
     CANCELED = 'CANCELED'
     ANY = 'ANY'
-    

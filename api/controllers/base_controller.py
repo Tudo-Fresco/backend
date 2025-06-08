@@ -108,10 +108,14 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
         return delete
     
     def make_response(self, service_response: ServiceResponse) -> JSONResponse:
+        if service_response.payload == []:
+            pass
+        elif not service_response.payload:
+            service_response.payload = {}
         return JSONResponse(
             status_code=service_response.status,
             content=jsonable_encoder({
-                'payload': service_response.payload or {},
+                'payload': service_response.payload,
                 'message': service_response.message
             })
         )

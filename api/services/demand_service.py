@@ -3,6 +3,7 @@ from uuid import UUID
 from api.controllers.models.user.user_response_model import UserResponseModel
 from api.enums.demand_status import DemandStatus
 from api.enums.product_type import ProductType
+from api.exceptions.unauthorized_exception import UnauthorizedException
 from api.exceptions.validation_exception import ValidationException
 from api.infrastructure.repositories.demand_repository import DemandRepository
 from api.infrastructure.repositories.product_repository import ProductRepository
@@ -78,7 +79,7 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
                 found_store = store
                 break
         if not found_store:
-            raise ValidationException('O usuário não possui acesso a loja requerida')
+            raise UnauthorizedException('O usuário não possui acesso a loja requerida')
         demands: List[Demand] = []
         demands = await self.repository.list_by_store(store_uuid, status, page, per_page, radius_meters, product_type)
         return ServiceResponse(

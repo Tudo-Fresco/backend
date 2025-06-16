@@ -39,6 +39,7 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
         if not request.responsible_uuid:
             request.responsible_uuid = user.uuid
             self.logger.log_warning(f'No responsible user was informed for this demand, the responsible will be the creator {user.email}: {user.uuid}')
+        await self._raise_if_user_is_not_authorized(user, request.store_uuid)
         store = await self.store_repo.get(request.store_uuid)
         self._raise_not_found_when_none(store, request.store_uuid)
         product = await self.product_repo.get(request.product_uuid)
@@ -64,6 +65,19 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
         )
     
     @catch
+    async def get(self, obj_id: UUID, user: UserResponseModel, store_uuid: UUID) -> ServiceResponse[DemandResponseModel]:
+        self.logger.log_info(f'Reading from id {obj_id}')
+        await self._raise_if_user_is_not_authorized(user, store_uuid)
+        entity = await self.repository.get(obj_id)
+        self._raise_not_found_when_none(entity, obj_id)
+        response = DemandResponseModel(**entity.to_dict())
+        return ServiceResponse(
+            status=HTTPStatus.OK,
+            message=f'A demanda {obj_id} foi encontrada com sucesso',
+            payload=response
+            )
+
+    @catch
     async def list_by_store(self, user: UserResponseModel,
                             store_uuid: UUID,
                             status: DemandStatus,
@@ -72,14 +86,7 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
                             radius_meters: int = 10000,
                             product_type: ProductType = ProductType.ANY
                             ) -> ServiceResponse[List[DemandResponseModel]]:
-        stores = await self.store_repo.list_by_owner(user.uuid, 1, 1000000)
-        found_store = None 
-        for store in stores:
-            if store.owner.uuid == UUID(user.uuid) and store.uuid == store_uuid:
-                found_store = store
-                break
-        if not found_store:
-            raise UnauthorizedException('O usuário não possui acesso a loja requerida')
+        await self._raise_if_user_is_not_authorized(user, store_uuid)
         demands: List[Demand] = []
         demands = await self.repository.list_by_store(store_uuid, status, page, per_page, radius_meters, product_type)
         return ServiceResponse(
@@ -87,3 +94,16 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
             message=f'{len(demands)} demandas com o status {status.value} foram encontrados para a loja selecionada',
             payload=self._convert_many_to_response(demands)
         )
+    
+    async def _raise_if_user_is_not_authorized(self, user: UserResponseModel, store_uuid: UUID) -> None:
+        self.logger.log_debug(f'Cheking if the user {user.uuid} has access to the store {store_uuid}')
+        stores = await self.store_repo.list_by_owner(user.uuid, 1, 1000000)
+        found_store = None 
+        for store in stores:
+            if str(store.owner.uuid) == str(user.uuid) and str(store.uuid) == str(store_uuid):
+                found_store = store
+                break
+        if not found_store:
+            self.logger.log_warning(f'The user {user.uuid} doest not have access to the store {store_uuid}')
+            raise UnauthorizedException('O usuário não possui acesso a loja requerida')
+        self.logger.log_debug(f'User {user.uuid} has access to the store {store_uuid}')

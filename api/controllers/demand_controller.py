@@ -34,6 +34,13 @@ class DemandController(BaseController[DemandRequestModel, DemandResponseModel]):
             status_code=200,
             summary=f'Listing {self.__class__.__name__} by store'
         )
+        self.router.add_api_route(
+            path='/by-uuid/{uuid}',
+            endpoint=self._get_handler(),
+            methods=['GET'],
+            response_model=DemandResponseModel,
+            summary='Get DemandResponseModel by UUID'
+        )
     
     def _create_handler(self):
         async def create(model: DemandRequestModel = Body(...),
@@ -42,6 +49,16 @@ class DemandController(BaseController[DemandRequestModel, DemandResponseModel]):
             service_response: ServiceResponse = await self.service.create(user=user, request=model)
             return self.make_response(service_response)
         return create
+
+    def _get_handler(self):
+        async def get(uuid: UUID,
+                      user: UserResponseModel = Depends(self.auth_wrapper.with_access([UserAccess.STORE_OWNER, UserAccess.ADMIN])),
+                      store_uuid = Query()
+                      ) -> JSONResponse:
+            self.logger.log_info(f"Reading the demand {uuid} for the store {store_uuid}")
+            service_response: ServiceResponse = await self.service.get(uuid, user, store_uuid)
+            return self.make_response(service_response)
+        return get
 
     def _list_by_store_handler(self):
             async def list_by_store(

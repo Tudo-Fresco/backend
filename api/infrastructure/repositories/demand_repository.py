@@ -5,6 +5,7 @@ from api.domain.entities.demand import Demand
 from api.enums.demand_status import DemandStatus
 from api.enums.product_type import ProductType
 from api.enums.store_type import StoreType
+from api.exceptions.not_found_exception import NotFoundException
 from api.infrastructure.models.address_model import AddressModel
 from api.infrastructure.models.demand_model import DemandModel
 from api.infrastructure.models.product_model import ProductModel
@@ -102,3 +103,22 @@ class DemandRepository(BaseRepository[Demand, DemandModel]):
         self.logger.log_debug(f"Found {len(models)} demands")
         demands = [model.to_entity() for model in models]
         return demands
+    
+    async def get(self, obj_id: UUID) -> Demand:
+        self.logger.log_debug(f'Retrieving the demand: {obj_id}')
+        query = (
+            select(self.model_class)
+            .filter_by(uuid=obj_id, active=True)
+            .options(
+                joinedload(DemandModel.responsible),
+                joinedload(DemandModel.product),
+                joinedload(DemandModel.store).joinedload(StoreModel.address),
+                joinedload(DemandModel.store).joinedload(StoreModel.owner)
+            )
+        )
+        result = await self.session.execute(query)
+        model = result.scalars().one_or_none()
+        if model is None:
+            self.logger.log_warning(f'No active demand found for UUID: {obj_id}')
+            raise NotFoundException(f'Nenhuma demanda com o id {obj_id} foi encontrada')
+        return model.to_entity()

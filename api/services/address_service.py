@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from uuid import UUID
-from api.clients.OpenStreetMapsClient import OpenStreetMapsClient
+from api.clients.open_street_map_client import OpenStreetMapsClient
 from api.clients.correios_client import CorreiosClient
 from api.controllers.models.address.address_request_model import AddressRequestModel
 from api.controllers.models.address.address_response_model import AddressResponseModel

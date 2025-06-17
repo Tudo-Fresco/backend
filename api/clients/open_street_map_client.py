@@ -25,7 +25,7 @@ class OpenStreetMapsClient:
             conn = http.client.HTTPSConnection(self.BASE_HOST)
             path = f'{self.BASE_PATH}?q={urllib.parse.quote(query)}&format=json&limit=1'
             headers = {
-                'User-Agent': 'SeuAppMVP/1.0 (contato@seuapp.com)'
+                'User-Agent': 'TudoFresco/1.0 (gbrl.volt@gmail.com)'
             }
             conn.request('GET', path, headers=headers)
             response = conn.getresponse()

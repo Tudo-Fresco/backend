@@ -44,12 +44,14 @@ class GoogleBucketsClient:
     async def delete_image(self, blob_name: str) -> None:
         self.logger.log_debug(f'Deleting image, file name: {blob_name}')
         blob = self.bucket.blob(blob_name)
+        self.manager.remove_cache(blob.name)
         await asyncio.to_thread(blob.delete)
 
     async def update_image(self, new_image_bytes: bytes, original_filename: str, old_blob_name: Optional[str] = None) -> str:
         self.logger.log_debug(f'Updating image, old file name: {old_blob_name}')
         if old_blob_name and old_blob_name.strip():
             await self.delete_image(old_blob_name)
+            self.manager.remove_cache(old_blob_name)
         return await self.save_image(new_image_bytes, original_filename)
 
     async def read_image(self, blob_name: str) -> str:
@@ -94,11 +96,14 @@ class GoogleStorageClientCacheManager:
     def cache_image(self, blob_name: str, signed_url: str, expiration: timedelta) -> None:
         self.cached[blob_name] = GoogleStorageClientCacheImage(blob_name, signed_url, expiration)
 
+    def remove_cache(self, blob_name: str) -> None:
+        del self.cached[blob_name]
+
     def get_image_signed_url(self, blob_name: str) -> Optional[str]:
         cached_image = self.cached.get(blob_name)
         if not cached_image:
             return None
         if cached_image.is_expired():
-            del self.cached[blob_name]
+            self.remove_cache(blob_name)
             return None
         return cached_image.signed_url

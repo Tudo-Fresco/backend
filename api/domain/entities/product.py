@@ -34,6 +34,21 @@ class Product(BaseEntity):
         validator.on(self.name, 'Nome do produto').character_limit(256, 'Deve ser menor do que 256 caracteres.').not_empty('É obrigatório')
         validator.check()
 
+    def add_image(self, blob_name: str) -> None:
+        self.images.append(blob_name)
+
+    def delete_image(self, blob_name) -> None:
+        try:
+            self.images.remove(blob_name)
+        except ValueError:
+            pass
+     
+    def get_image(self, index: int) -> str | None:
+        image: str | None = None
+        if index > 0 and index < len(self.images):
+            image = self.images[index]
+        return image
+
     def _get_search_name(self) -> str:
         unit = self._get_type_abbreviation(self.unit_type)
         return f"{self.name} ({unit})"

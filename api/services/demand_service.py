@@ -80,13 +80,14 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
     @catch
     async def list_by_store(self, user: UserResponseModel,
                             store_uuid: UUID,
-                            status: DemandStatus,
+                            status: DemandStatus = DemandStatus.ANY,
                             page: int = 1,
                             per_page: int = 10,
                             radius_meters: int = 10000,
                             product_type: ProductType = ProductType.ANY
                             ) -> ServiceResponse[List[DemandResponseModel]]:
         await self._raise_if_user_is_not_authorized(user, store_uuid)
+        self.logger.log_debug(f'Listing by the stauts {status.value}')
         demands: List[Demand] = []
         demands = await self.repository.list_by_store(store_uuid, status, page, per_page, radius_meters, product_type)
         return ServiceResponse(

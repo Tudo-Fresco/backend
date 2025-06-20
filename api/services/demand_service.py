@@ -9,11 +9,12 @@ from api.infrastructure.repositories.demand_repository import DemandRepository
 from api.infrastructure.repositories.product_repository import ProductRepository
 from api.infrastructure.repositories.store_repository import StoreRepository
 from api.infrastructure.repositories.user_repository import UserRepository
-from api.controllers.models.demand.demand_response_mode import DemandResponseModel
+from api.controllers.models.demand.demand_response_model import DemandResponseModel
 from http import HTTPStatus
 from api.controllers.models.demand.demand_request_model import DemandRequestModel
 from api.domain.entities.demand import Demand
 from api.services.base_service import BaseService
+from api.services.product_service import ProductService
 from api.services.service_exception_catcher import ServiceExceptionCatcher
 from api.services.service_response import ServiceResponse
 
@@ -27,12 +28,14 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
         demand_repository: DemandRepository,
         store_repository: StoreRepository,
         product_repository: ProductRepository,
-        user_repository: UserRepository
+        user_repository: UserRepository,
+        product_service: ProductService
     ):
         super().__init__(demand_repository, Demand, DemandResponseModel)
         self.store_repo = store_repository
         self.product_repo = product_repository
         self.user_repo = user_repository
+        self.product_service = product_service
 
     async def create(self, user: UserResponseModel, request: DemandRequestModel) -> ServiceResponse[DemandResponseModel]:
         self.logger.log_info('Creating a Demand')
@@ -68,9 +71,10 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
     async def get(self, obj_id: UUID, user: UserResponseModel, store_uuid: UUID) -> ServiceResponse[DemandResponseModel]:
         self.logger.log_info(f'Reading from id {obj_id}')
         await self._raise_if_user_is_not_authorized(user, store_uuid)
-        entity = await self.repository.get(obj_id)
-        self._raise_not_found_when_none(entity, obj_id)
-        response = DemandResponseModel(**entity.to_dict())
+        demand = await self.repository.get(obj_id)
+        await self.product_service.sign_product_images(demand.product)
+        self._raise_not_found_when_none(demand, obj_id)
+        response = DemandResponseModel(**demand.to_dict())
         return ServiceResponse(
             status=HTTPStatus.OK,
             message=f'A demanda {obj_id} foi encontrada com sucesso',
@@ -90,6 +94,8 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
         self.logger.log_debug(f'Listing by the stauts {status.value}')
         demands: List[Demand] = []
         demands = await self.repository.list_by_store(store_uuid, status, page, per_page, radius_meters, product_type)
+        for demand in demands:
+            await self.product_service.sign_product_images(demand.product)
         return ServiceResponse(
             status=HTTPStatus.OK,
             message=f'{len(demands)} demandas com o status {status.value} foram encontrados para a loja selecionada',
@@ -105,6 +111,6 @@ class DemandService(BaseService[DemandRequestModel, DemandResponseModel, Demand]
                 found_store = store
                 break
         if not found_store:
-            self.logger.log_warning(f'The user {user.uuid} doest not have access to the store {store_uuid}')
+            self.logger.log_warning(f'The user {user.uuid} does not have access to the store {store_uuid}')
             raise UnauthorizedException('O usuário não possui acesso a loja requerida')
         self.logger.log_debug(f'User {user.uuid} has access to the store {store_uuid}')

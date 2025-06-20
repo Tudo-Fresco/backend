@@ -68,7 +68,7 @@ class ProductController(BaseController[ProductRequestModel, ProductResponseModel
     def _upload_picture_handler(self):
         async def upload_picture(
             file: UploadFile = File(...),
-            product_uuid: UUID = Query(),
+            product_uuid: UUID = Query(...),
             user: UserResponseModel = Depends(self.auth_wrapper.with_access([UserAccess.STORE_OWNER, UserAccess.ADMIN]))
         ) -> JSONResponse:
             self.logger.log_info(f'New profile picture being uploaded from the user {user.uuid} for the product {product_uuid}')

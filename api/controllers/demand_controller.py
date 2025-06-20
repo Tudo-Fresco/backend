@@ -4,7 +4,7 @@ from fastapi import Body, Depends, Query
 from fastapi.responses import JSONResponse
 from api.controllers.auth_wrapper import AuthWrapper
 from api.controllers.models.demand.demand_request_model import DemandRequestModel
-from api.controllers.models.demand.demand_response_mode import DemandResponseModel
+from api.controllers.models.demand.demand_response_model import DemandResponseModel
 from api.controllers.models.user.user_response_model import UserResponseModel
 from api.enums.demand_status import DemandStatus
 from api.enums.product_type import ProductType

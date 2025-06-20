@@ -24,7 +24,7 @@ class ProductService(BaseService[ProductRequestModel, ProductResponseModel, Prod
     
     async def list_by_name_and_type(self, name: str = '*', type: ProductType = ProductType.ANY, page: int = 1, per_page: int = 30) -> ServiceResponse[List[Product]]:
         products = await self.repository.list_by_name_and_type(name, type, page, per_page)
-        await self.__sign_products_images(products)
+        await self.sign_products_images(products)
         return ServiceResponse(
             status=HTTPStatus.OK,
             message=f'{len(products)} produtos foram encontrados relacionados relacionados com o nome: {name} e tipo {type.value}',
@@ -36,7 +36,7 @@ class ProductService(BaseService[ProductRequestModel, ProductResponseModel, Prod
         self.logger.log_info(f'Uploading a new image for the product {product_uuid}')
         product: Product = await self.repository.get(product_uuid)
         new_blob_name = await self.bucket_client.save_image(
-            new_image_bytes=image_bytes,
+            image_bytes=image_bytes,
             original_filename=file_name
         )
         product.add_image(new_blob_name)
@@ -67,7 +67,7 @@ class ProductService(BaseService[ProductRequestModel, ProductResponseModel, Prod
     async def get(self, obj_id: UUID) -> ServiceResponse[ProductResponseModel]:
         self.logger.log_info(f'Reading from id {obj_id}')
         product: Product = await self.repository.get(obj_id)
-        await self.__sign_product_images(product)
+        await self.sign_product_images(product)
         self._raise_not_found_when_none(product, obj_id)
         response = self.response_model(**product.to_dict())
         return ServiceResponse(status=HTTPStatus.OK, message=f'O produto {obj_id} foi encontrado com sucesso', payload=response)
@@ -80,11 +80,11 @@ class ProductService(BaseService[ProductRequestModel, ProductResponseModel, Prod
         products_response = self._convert_many_to_response(products)
         return ServiceResponse(status=HTTPStatus.OK, message=f'Leu {len(products_response)} produtos com sucesso', payload=products_response)
 
-    async def __sign_products_images(self, products: List[Product]) -> None:
+    async def sign_products_images(self, products: List[Product]) -> None:
         for product in products:
-            await self.__sign_product_images(product)
+            await self.sign_product_images(product)
 
-    async def __sign_product_images(self, product: Product) -> None:
+    async def sign_product_images(self, product: Product) -> None:
         images: List[str] = product.images
         signed_image_urls: List[str] = []
         for img in images:

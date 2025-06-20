@@ -7,6 +7,7 @@ from api.controllers.auth_controller import AuthController
 from api.controllers.auth_wrapper import AuthWrapper
 from api.controllers.demand_controller import DemandController
 from api.controllers.product_controller import ProductController
+from api.controllers.reel_controller import ReelController
 from api.controllers.store_controller import StoreController
 from api.controllers.user_controller import UserController
 
@@ -22,6 +23,7 @@ from api.services.address_service import AddressService
 from api.services.auth_service import AuthService
 from api.services.demand_service import DemandService
 from api.services.product_service import ProductService
+from api.services.reel_service import ReelService
 from api.services.store_service import StoreService
 from api.services.user_service import UserService
 
@@ -89,10 +91,17 @@ class ApiRouterBuilder:
             demand_repository,
             store_repository,
             product_repository,
-            user_repository
+            user_repository,
+            product_service
         )
         demand_controller = DemandController(demand_service, auth_wrapper)
         routers.append(demand_controller.router)
+
+        #Reel
+        self.logger.log_debug('Creating ReelService and ReelController')
+        reel_service = ReelService(demand_service)
+        reel_controller = ReelController(reel_service, auth_wrapper)
+        routers.append(reel_controller.router)
 
         self.logger.log_info('All routers successfully initialized')
         return routers

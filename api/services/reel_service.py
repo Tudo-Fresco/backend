@@ -19,7 +19,7 @@ class ReelService():
     async def get_posts(self,
                         user: UserResponseModel,
                         store_uuid: UUID,
-                        status: DemandStatus = DemandStatus.ANY,
+                        status: DemandStatus = DemandStatus.OPENED,
                         page: int = 1,
                         per_page: int = 20,
                         radius_meters: int = 10000,

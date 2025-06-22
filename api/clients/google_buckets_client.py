@@ -14,7 +14,7 @@ from api.shared.env_variable_manager import EnvVariableManager
 class GoogleBucketsClient:
 
     def __init__(self, bucket_name: BucketName):
-        self.logger = Logger('GoogleBucketsClient')
+        self.logger = Logger(f'GoogleBucketsClient-{bucket_name.value}')
         self.env = EnvVariableManager()
         storage_account_file_path: str = self.env.load('STORAGE_ACCOUNT_FILE_PATH', 'auth/tudo-fresco-backend.json').string()
         self.signed_url_expiration_seconds: str = self.env.load('SIGNED_BUCKET_URL_EXPIRATION_SECONDS', 10800).integer()
@@ -43,7 +43,10 @@ class GoogleBucketsClient:
 
     async def delete_image(self, blob_name: str) -> None:
         self.logger.log_debug(f'Deleting image, file name: {blob_name}')
-        blob = self.bucket.blob(blob_name)
+        blob = self.bucket.get_blob(blob_name)
+        if not blob:
+            self.logger.log_warning(f'The blob {blob_name} was not found in this bucket, cannot be deleted')
+            return
         self.manager.remove_cache(blob.name)
         await asyncio.to_thread(blob.delete)
 
@@ -97,7 +100,8 @@ class GoogleStorageClientCacheManager:
         self.cached[blob_name] = GoogleStorageClientCacheImage(blob_name, signed_url, expiration)
 
     def remove_cache(self, blob_name: str) -> None:
-        del self.cached[blob_name]
+        if self.cached.get(blob_name):
+            del self.cached[blob_name]
 
     def get_image_signed_url(self, blob_name: str) -> Optional[str]:
         cached_image = self.cached.get(blob_name)

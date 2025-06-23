@@ -124,6 +124,9 @@ class Validator:
         return self
 
     def check(self):
+        """
+        Raises a ValidationException if any validation returned a False.
+        """
         if self.current_field_errors:
             message = ''
             for field_name, error in self.current_field_errors:

@@ -1,6 +1,7 @@
 from api.clients.google_buckets_client import GoogleBucketsClient
 from api.controllers.models.user.user_request_model import UserRequestModel
 from api.controllers.models.user.user_response_model import UserResponseModel
+from api.controllers.models.user.user_update_profile_request_model import UserUpdateProfileRequestModel
 from api.domain.entities.user import User
 from api.enums.bucket_name import BucketName
 from api.enums.user_access import UserAccess
@@ -10,6 +11,7 @@ from api.services.base_service import BaseService
 from api.services.service_exception_catcher import ServiceExceptionCatcher
 from api.services.service_response import ServiceResponse
 from http import HTTPStatus
+from api.shared.password_hasher import PasswordHasher
 
 
 class UserService(BaseService[UserRequestModel, UserResponseModel, User]):
@@ -72,4 +74,27 @@ class UserService(BaseService[UserRequestModel, UserResponseModel, User]):
             status=HTTPStatus.OK,
             message='The URL was signed successfully',
             payload=signed_url
+        )
+    
+    @catch
+    async def update_profile(self, requester: UserResponseModel, request: UserUpdateProfileRequestModel) -> ServiceResponse[UserResponseModel]:
+        self.logger.log_info(f'Updating the profile for the user: {request.email}, id: {request.uuid}')
+        if str(requester.uuid) != str(request.uuid):
+            self.logger.log_warning(f'The user {requester.uuid} tried to update the profile of the user {request.uuid}')
+            raise ValidationException('Não é possível alterar dados de outros usuários')
+        user: User = await self.repository.get(request.uuid)
+        password_hasher = PasswordHasher()
+        current_password_matches: bool = password_hasher.verify(request.current_password, user.password)
+        if not current_password_matches:
+            raise ValidationException('A senha atual está incorreta')
+        user.update(**request.model_dump())
+        user.validate()
+        user.hash_password()
+        self.logger.log_debug(f'The properties are valid and ready to be updated for the user {user.email}')
+        await self.repository.update(user)
+        self.logger.log_debug(f'The user {user.email} was successfully updated')
+        return ServiceResponse(
+            status=HTTPStatus.OK,
+            message=f'O usuário {user.email} foi atualizado com sucesso',
+            payload=UserResponseModel(**user.to_dict())
         )

@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import EmailStr, Field
+from pydantic import Field
 from api.controllers.models.address.address_response_model import AddressResponseModel
 from api.controllers.models.base_response_model import BaseResponseModel
 from api.controllers.models.user.user_response_model import UserResponseModel
@@ -18,8 +18,8 @@ class StoreResponseModel(BaseResponseModel):
     owner: Optional[UserResponseModel]
     legal_phone_contact: Optional[str] = Field(None, example='(11) 1234-5678')
     preferred_phone_contact: Optional[str] = Field(None, example='(11) 98765-4321')
-    legal_email_contact: Optional[EmailStr] = Field(None, example='legal@loja.com.br')
-    preferred_email_contact: Optional[EmailStr] = Field(None, example='contato@loja.com.br')
+    legal_email_contact: Optional[str] = Field(None, example='legal@loja.com.br')
+    preferred_email_contact: Optional[str] = Field(None, example='contato@loja.com.br')
     store_type: Optional[StoreType] = Field(None, example=StoreType.SUPPLIER.value)
     opening_date: Optional[date] = Field(None, example='2000-01-01')
     size: Optional[str] = Field(None, example='MICRO EMPRESA', description='Porte da empresa')

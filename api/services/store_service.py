@@ -73,6 +73,7 @@ class StoreService(BaseService[StoreRequestModel, StoreResponseModel, Store]):
         stores: List[Store] = []
         if user.user_access == UserAccess.ADMIN or user.user_access == UserAccess.STORE_OWNER:
             stores = await self.repository.list_by_owner(user_uuid, page, per_page)
+        self.logger.log_debug(f'Found {len(stores)} for the user {user.uuid}')
         return ServiceResponse(
             status=HTTPStatus.OK,
             message=f'{len(stores)} pontos de venda foram encontrados relacionados ao usuário {user_uuid}',

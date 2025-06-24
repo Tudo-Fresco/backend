@@ -10,7 +10,6 @@ from api.enums.demand_status import DemandStatus
 from api.enums.product_type import ProductType
 from api.enums.user_access import UserAccess
 from api.services.demand_service import DemandService
-from api.services.i_service import IService
 from api.controllers.base_controller import BaseController
 from api.services.service_response import ServiceResponse
 

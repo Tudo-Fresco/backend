@@ -16,7 +16,7 @@ class BaseRepository(IRepository[T], Generic[T, M]):
     def __init__(self, session: AsyncSession, model_class: type[M]):
         self.session = session
         self.model_class = model_class
-        logger_name = f'{model_class.__name__}Rpository'
+        logger_name = f'{model_class.__name__}Repository'
         logger_name = logger_name.replace('Model', '')
         self.logger = Logger(logger_name)
 

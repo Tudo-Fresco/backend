@@ -18,5 +18,5 @@ class UserRepository(BaseRepository[User, UserModel]):
         model = result.scalars().one_or_none()
         if model is None:
             self.logger.log_warning(f'Usuário não encontrado: {email}')
-            raise NotFoundException(f'Active user with email {email} not found')
+            raise NotFoundException(f'Active user with email {email} was not found')
         return model.to_entity()

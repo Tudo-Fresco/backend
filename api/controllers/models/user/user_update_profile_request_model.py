@@ -6,7 +6,7 @@ from api.enums.gender_type import GenderType
 
 
 class UserUpdateProfileRequestModel(BaseRequestModel):
-    uuid: UUID = Field(..., examples='123e4567-e89b-12d3-a456-426614174000')
+    uuid: UUID = Field(..., example='123e4567-e89b-12d3-a456-426614174000')
     name: str = Field(..., example='Gabriel Voltolini')
     email: str = Field(..., example='gabriel@example.com')
     date_of_birth: date = Field(..., example='2000-01-01')

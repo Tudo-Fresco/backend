@@ -44,6 +44,6 @@ def create_app() -> FastAPI:
 if __name__ == '__main__':
     env = EnvVariableManager()
     app_ip = env.load('APP_IP', '0.0.0.0').string()
-    app_port = env.load('APP_PORT', 8777).integer()
+    app_port = env.load('APP_PORT', 8080).integer()
     app = create_app()
     uvicorn.run(app, host=app_ip, port=app_port)

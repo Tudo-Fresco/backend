@@ -19,7 +19,9 @@ def create_app() -> FastAPI:
     allow_headers = env.load('ALLOW_CREDENTALS_HEADERS', '*').string().split(',')
     app = FastAPI(
         title='Tudo Fresco API',
-        version='1.0.0'
+        version='1.0.0',
+        docs_url='/',
+        openapi_url='/openapi.json',
     )
     app.add_middleware(
         CORSMiddleware,

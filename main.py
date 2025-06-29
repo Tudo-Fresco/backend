@@ -42,6 +42,7 @@ def create_app() -> FastAPI:
     return app
 
 if __name__ == '__main__':
+    logger.log_info('Staring the server')
     env = EnvVariableManager()
     app_ip = env.load('APP_IP', '0.0.0.0').string()
     app_port = env.load('APP_PORT', 8080).integer()

@@ -110,26 +110,23 @@ class ApiRouterBuilder:
     def __create_sql_engine(self, db_connection_url: str) -> AsyncEngine:
         self.logger.log_info('Creating database engine')
         is_local = self.env.load('IS_LOCAL', default_value=False).boolean()
-        engine = None
         if is_local:
             self.logger.log_info('Creating the engine for local environment')
-            engine = create_async_engine(db_connection_url, echo=False)
-        else:
-            self.logger.log_info('Creating the engine Google Cloud environment')
-            cloud_connection_name = self.env.load('CLOUD_SQL_CONNECTION_NAME').string()
-            parsed_url = make_url(db_connection_url)
-            db_user = parsed_url.username
-            db_password = parsed_url.password
-            db_name = parsed_url.database
-            socket_path = f'/cloudsql/{cloud_connection_name}'
-            engine = create_async_engine(
-                URL(
-                    drivername='postgres+pg8000',
-                    username=db_user,
-                    password=db_password,
-                    database=db_name,
-                    query={'host': socket_path}
-                )
-            )
+            return create_async_engine(db_connection_url, echo=False)
+        self.logger.log_info('Creating the engine for Google Cloud environment')
+        cloud_connection_name = self.env.load('CLOUD_SQL_CONNECTION_NAME').string()
+        parsed_url = make_url(db_connection_url)
+        db_user = parsed_url.username
+        db_password = parsed_url.password
+        db_name = parsed_url.database
+        socket_path = f'/cloudsql/{cloud_connection_name}'
+        db_url = URL.create(
+            drivername='postgresql+asyncpg',
+            username=db_user,
+            password=db_password,
+            database=db_name,
+            query={'host': socket_path}
+        )
+        engine = create_async_engine(db_url, echo=False)
         self.logger.log_info('The database engine was successfully created')
         return engine

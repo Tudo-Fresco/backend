@@ -29,7 +29,7 @@ class UserService(BaseService[UserRequestModel, UserResponseModel, User]):
         user.validate()
         user.hash_password()
         service_response = await self.get_by_email(user.email)
-        if service_response.status != HTTPStatus.NOT_FOUND:
+        if service_response.payload:
             raise ValidationException(f'O e-mail {user.email} já está cadastrado no sistema')
         await self.repository.create(user)
         response = self.response_model(**user.to_dict())

@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from fastapi import APIRouter
-
+from sqlalchemy.engine.url import URL
+from sqlalchemy.engine import make_url
+from sqlalchemy.ext .asyncio.engine import AsyncEngine
 # Controllers
 from api.controllers.address_controller import AddressController
 from api.controllers.auth_controller import AuthController
@@ -38,10 +40,9 @@ class ApiRouterBuilder:
         ApiConfig()
         self.logger = Logger(self.__class__.__name__)
         self.logger.log_info('Initializing AppRouterBuilder')
-        env = EnvVariableManager()
-        db_url = env.load('DB_URL', is_sensitive=True).string()
-        self.logger.log_info('Creating database engine and sessionmaker')
-        self.engine = create_async_engine(db_url, echo=False)
+        self.env = EnvVariableManager()
+        db_url = self.env.load('DB_URL', is_sensitive=True).string()
+        self.engine = self.__create_sql_engine(db_url)
         self.sessionmaker = async_sessionmaker(self.engine, expire_on_commit=False)
 
     def build(self) -> list[APIRouter]:
@@ -105,3 +106,32 @@ class ApiRouterBuilder:
 
         self.logger.log_info('All routers successfully initialized')
         return routers
+
+    def __create_sql_engine(self, db_connection_url: str) -> AsyncEngine:
+        self.logger.log_info('Creating database engine')
+        is_local = self.env.load('IS_LOCAL', default_value=False).boolean()
+        engine = None
+        if is_local:
+            self.logger.log_info('Creating the engine for local environment')
+            engine = create_async_engine(db_connection_url, echo=False)
+        else:
+            self.logger.log_info('Creating the engine Google Cloud environment')
+            cloud_connection_name = self.env.load('CLOUD_SQL_CONNECTION_NAME').string()
+            parsed_url = make_url(db_connection_url)
+            db_user = parsed_url.username
+            db_password = parsed_url.password
+            db_name = parsed_url.database
+            unix_sock_config: dict = {
+                'unix_sock': f'/cloudsql/{cloud_connection_name}/.s/PGSQL.5432'
+            }
+            engine = create_async_engine(
+                URL(
+                    drivername='postgres+pg8000',
+                    username=db_user,
+                    password=db_password,
+                    database=db_name,
+                    query=unix_sock_config
+                )
+            )
+        self.logger.log_info('The database engine was successfully created')
+        return engine

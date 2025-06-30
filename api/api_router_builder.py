@@ -121,16 +121,14 @@ class ApiRouterBuilder:
             db_user = parsed_url.username
             db_password = parsed_url.password
             db_name = parsed_url.database
-            unix_sock_config: dict = {
-                'unix_sock': f'/cloudsql/{cloud_connection_name}/.s/PGSQL.5432'
-            }
+            socket_path = f'/cloudsql/{cloud_connection_name}'
             engine = create_async_engine(
                 URL(
                     drivername='postgres+pg8000',
                     username=db_user,
                     password=db_password,
                     database=db_name,
-                    query=unix_sock_config
+                    query={'host': socket_path}
                 )
             )
         self.logger.log_info('The database engine was successfully created')

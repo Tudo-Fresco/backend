@@ -13,7 +13,7 @@ class UserModel(BaseModel):
     email = Column(String(256), nullable=False, unique=True)
     date_of_birth = Column(Date, nullable=False)
     gender = Column(Enum(GenderType), nullable=False)
-    phone_number = Column(String(20), nullable=False)
+    phone_number = Column(String(32), nullable=False)
     profile_picture = Column(String, nullable=False)
     password = Column(String, nullable=False)
     user_access = Column(Enum(UserAccess), nullable=False)

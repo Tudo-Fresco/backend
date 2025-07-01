@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, List
+from typing import AsyncGenerator
 from fastapi import APIRouter, Depends
 from api.utils.session_factory import SessionFactory
 from api.utils.repository_factory import RepositoryFactory
@@ -42,21 +42,23 @@ class ApiRouterBuilder:
     def get_repository(self, repo_class, session: AsyncSession):
         return self.repository_factory.get_repository(repo_class, session)
 
-    async def build(self) -> list[APIRouter]:
+    def build(self) -> list[APIRouter]:
         self.logger.log_info("Building API routers")
-        routers: List[APIRouter] = []
+        routers = []
         Depends(lambda session=Depends(self.get_session): self.get_repository(UserRepository, session))
         Depends(lambda session=Depends(self.get_session): self.get_repository(AddressRepository, session))
         Depends(lambda session=Depends(self.get_session): self.get_repository(StoreRepository, session))
         Depends(lambda session=Depends(self.get_session): self.get_repository(ProductRepository, session))
         Depends(lambda session=Depends(self.get_session): self.get_repository(DemandRepository, session))
 
-        async with self.session_factory.async_session_maker() as session:
-            user_repository = UserRepository(session)
-            address_repository = AddressRepository(session)
-            store_repository = StoreRepository(session)
-            product_repository = ProductRepository(session)
-            demand_repository = DemandRepository(session)
+        session = asyncio.run(self.session_factory.async_session_maker().__aenter__())
+
+        # Create repositories
+        user_repository = UserRepository(session)
+        address_repository = AddressRepository(session)
+        store_repository = StoreRepository(session)
+        product_repository = ProductRepository(session)
+        demand_repository = DemandRepository(session)
 
         # Services
         user_service = UserService(user_repository)

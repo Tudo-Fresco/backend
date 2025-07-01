@@ -6,12 +6,23 @@ from api.shared.logger import Logger
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from fastapi.exception_handlers import http_exception_handler
-
+from contextlib import asynccontextmanager
 
 logger = Logger('Tudo Fresco API')
 
-def create_app() -> FastAPI:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     logger.log_info('Starting FastAPI application')
+    router_builder = ApiRouterBuilder()
+    routers = await router_builder.build()
+    for router in routers:
+        logger.log_debug(f'Including router: {router.prefix}')
+        app.include_router(router)
+    logger.log_info('All routers included. App is ready.')
+    yield
+    logger.log_info('Shutting down FastAPI application')
+
+def create_app() -> FastAPI:
     env = EnvVariableManager()
     allowed_methods = env.load('ALLOWED_METHODS', '*').string().split(',')
     allowed_origins = env.load('ALLOWED_ORIGINS', 'http://localhost:5173').string().split(',')
@@ -22,6 +33,7 @@ def create_app() -> FastAPI:
         version='1.0.0',
         docs_url='/',
         openapi_url='/openapi.json',
+        lifespan=lifespan
     )
     app.add_middleware(
         CORSMiddleware,
@@ -30,12 +42,6 @@ def create_app() -> FastAPI:
         allow_methods=allowed_methods,
         allow_headers=allow_headers,
     )
-    router_builder = ApiRouterBuilder()
-    routers = router_builder.build()
-    for router in routers:
-        logger.log_debug(f'Including router: {router.prefix}')
-        app.include_router(router)
-    logger.log_info('All routers included. App is ready.')
     @app.exception_handler(HTTPException)
     async def custom_http_exception_handler(request: Request, exc: HTTPException):
         if isinstance(exc.detail, JSONResponse):
@@ -44,9 +50,8 @@ def create_app() -> FastAPI:
     return app
 
 if __name__ == '__main__':
-    logger.log_info('Staring the server')
+    logger.log_info('Starting the server')
     env = EnvVariableManager()
     app_ip = env.load('APP_IP', '0.0.0.0').string()
     app_port = env.load('APP_PORT', 8080).integer()
-    app = create_app()
-    uvicorn.run(app, host=app_ip, port=app_port)
+    uvicorn.run("main:create_app", host=app_ip, port=app_port, factory=True)

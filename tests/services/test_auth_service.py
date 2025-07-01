@@ -74,8 +74,8 @@ class TestAuthService(unittest.IsolatedAsyncioTestCase):
             payload=None
         )
         response = await self.auth_service.authenticate_user("notfound@example.com", "somepass")
-        self.assertEqual(response.status, status.HTTP_404_NOT_FOUND)
-        self.assertIn("não possui cadastro", response.message.lower())
+        self.assertEqual(response.status, status.HTTP_424_FAILED_DEPENDENCY)
+        self.assertIn("não foi possível encontrar o usuário notfound@example.com", response.message.lower())
         self.assertIsNone(response.payload)
 
     @patch('api.services.auth_service.jwt.decode')

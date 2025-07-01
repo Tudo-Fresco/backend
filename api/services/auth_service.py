@@ -35,8 +35,10 @@ class AuthService:
         self.logger.log_debug(f'Providing a new JWT token for the user {email}')
         service_response = await self.user_service.get_by_email(email)
         user = service_response.payload
-        if not user:
+        if service_response.status == status.HTTP_404_NOT_FOUND:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'O usuário {email} não possui cadastro')
+        if not user:
+            raise HTTPException(status_code=status.HTTP_424_FAILED_DEPENDENCY, detail=f'Não foi possível encontrar o usuário {email}, tentar novamente em alguns minutos')
         valid_password: bool = PasswordHasher.verify(password, user.password)
         if not valid_password:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Credenciais inválidas, verifique o seu e-mail e senha')

@@ -1,17 +1,22 @@
 from sqlalchemy.future import select
 from sqlalchemy import func
 from typing import List
+from api.infrastructure.repositories.repository_exception_catcher import RepositoryExceptionCatcher
 from api.domain.entities.product import Product
 from api.enums.product_type import ProductType
 from api.infrastructure.models.product_model import ProductModel
 from api.infrastructure.repositories.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 
+
 class ProductRepository(BaseRepository[Product, ProductModel]):
 
     def __init__(self, session: AsyncSession):
         super().__init__(session, ProductModel)
 
+    catcher = RepositoryExceptionCatcher('ProductRepository')
+
+    @catcher
     async def list_by_name_and_type(
         self,
         name: str = '*',

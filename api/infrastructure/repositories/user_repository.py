@@ -5,11 +5,18 @@ from api.infrastructure.repositories.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+from api.infrastructure.repositories.repository_exception_catcher import RepositoryExceptionCatcher
+
 
 class UserRepository(BaseRepository[User, UserModel]):
+
+    catcher = RepositoryExceptionCatcher('UserRepository')
+
+
     def __init__(self, session: AsyncSession):
         super().__init__(session, UserModel)
 
+    @catcher
     async def get_by_email(self, email: str) -> User:
         self.logger.log_info(f'Retrieving user by email: {email}')
         result = await self.session.execute(

@@ -8,6 +8,7 @@ from api.enums.store_type import StoreType
 from api.exceptions.not_found_exception import NotFoundException
 from api.infrastructure.models.address_model import AddressModel
 from api.infrastructure.models.demand_model import DemandModel
+from api.infrastructure.repositories.repository_exception_catcher import RepositoryExceptionCatcher
 from api.infrastructure.models.product_model import ProductModel
 from api.infrastructure.models.store_model import StoreModel
 from api.infrastructure.repositories.base_repository import BaseRepository
@@ -15,11 +16,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlalchemy.future import select
 
+
 class DemandRepository(BaseRepository[Demand, DemandModel]):
+
+    catcher = RepositoryExceptionCatcher('DemandRepository')
 
     def __init__(self, session: AsyncSession):
         super().__init__(session, DemandModel)
 
+    @catcher
     async def list_by_store(self, store_uuid: UUID, status: DemandStatus = DemandStatus.ANY,
                             page: int = 1, per_page: int = 10,
                             radius_meters: int = 10000,

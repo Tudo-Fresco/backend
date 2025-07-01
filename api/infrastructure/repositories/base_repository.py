@@ -6,12 +6,15 @@ from api.domain.entities.base_entity import BaseEntity
 from api.exceptions.not_found_exception import NotFoundException
 from api.infrastructure.models.base_model import BaseModel
 from api.infrastructure.repositories.i_repository import IRepository
+from api.infrastructure.repositories.repository_exception_catcher import RepositoryExceptionCatcher
 from api.shared.logger import Logger
 
 T = TypeVar('T', bound=BaseEntity)
 M = TypeVar('M', bound=BaseModel)
 
 class BaseRepository(IRepository[T], Generic[T, M]):
+
+    catcher = RepositoryExceptionCatcher(f'{str(M)}Repository')
 
     def __init__(self, session: AsyncSession, model_class: type[M]):
         self.session = session
@@ -20,12 +23,14 @@ class BaseRepository(IRepository[T], Generic[T, M]):
         logger_name = logger_name.replace('Model', '')
         self.logger = Logger(logger_name)
 
+    @catcher
     async def create(self, obj: T) -> None:
             model = self.model_class()
             model.from_entity(obj)
             self.session.add(model)
             await self.session.commit()
 
+    @catcher
     async def get(self, obj_id: UUID) -> T:
         self.logger.log_debug(f'Retrieving record: {obj_id}')
         result = await self.session.execute(
@@ -37,6 +42,7 @@ class BaseRepository(IRepository[T], Generic[T, M]):
             raise NotFoundException(f'Nenhum registro com o id {obj_id} foi encontrado')
         return model.to_entity()
 
+    @catcher
     async def list(self, page: int = 1, per_page: int = 10) -> List[T]:
         self.logger.log_debug(f'Listing records (page {page}, per_page {per_page})')
         if page < 1:
@@ -46,6 +52,7 @@ class BaseRepository(IRepository[T], Generic[T, M]):
         models = result.scalars().all()
         return [model.to_entity() for model in models]
 
+    @catcher
     async def update(self, obj: T) -> None:
         self.logger.log_debug(f'Updating the record: {obj.uuid}')
         await self.get(obj.uuid)

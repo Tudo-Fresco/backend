@@ -8,11 +8,17 @@ from api.domain.entities.store import Store
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 
+from api.infrastructure.repositories.repository_exception_catcher import RepositoryExceptionCatcher
+
 
 class StoreRepository(BaseRepository[Store, StoreModel]):
+
+    catcher = RepositoryExceptionCatcher('StoreRepository')
+
     def __init__(self, session: AsyncSession):
         super().__init__(session, StoreModel)
 
+    @catcher
     async def get(self, obj_id: UUID) -> Store:
         self.logger.log_debug(f'Retrieving store: {obj_id}')
         query = (
@@ -30,6 +36,7 @@ class StoreRepository(BaseRepository[Store, StoreModel]):
             raise NotFoundException(f'Nenhuma loja com o id {obj_id} foi encontrada')
         return model.to_entity()
 
+    @catcher
     async def list(self, page: int = 1, per_page: int = 10) -> List[Store]:
         self.logger.log_debug(f'Listing stores (page {page}, per_page {per_page})')
         if page < 1:
@@ -48,6 +55,7 @@ class StoreRepository(BaseRepository[Store, StoreModel]):
         models = result.scalars().all()
         return [model.to_entity() for model in models]
 
+    @catcher
     async def list_by_owner(self, owner_uuid: UUID, page: int = 1, per_page: int = 10) -> List[Store]:
             self.logger.log_debug(f'Listing companies by the owner: {owner_uuid} (page {page}, per_page {per_page})')
             if page < 1:
@@ -71,6 +79,7 @@ class StoreRepository(BaseRepository[Store, StoreModel]):
                 stores.append(store)
             return stores
 
+    @catcher
     async def get_by_cnpj(self, cnpj: str) -> Optional[Store]:
         self.logger.log_debug(f'Fetching store by CNPJ: {cnpj}')
         query = (

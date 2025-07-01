@@ -31,7 +31,7 @@ class BaseController(Generic[RequestModelT, ResponseModelT]):
         self.response_model = response_model
         self.auth_wrapper = auth_wrapper
         self.router.add_api_route(
-            path='/',
+            path='',
             endpoint=self._create_handler(),
             methods=['POST'],
             response_model=response_model,
